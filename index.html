@@ -117,6 +117,32 @@ select:focus{outline:none;border-color:var(--gold);}
 .path-step .stp-name{font-size:14px;font-weight:600;}
 .path-step .stp-meta{font-size:12px;color:var(--text-dim);}
 .note{font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.6;}
+.team-link{background:transparent;border:none;color:inherit;font:inherit;cursor:pointer;padding:0;text-align:inherit;}
+.team-link:hover{color:var(--gold);text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px;}
+.team-link.opponent-pill{background:var(--surface-2);padding:4px 12px;border:1px solid var(--border);color:var(--text);border-radius:20px;}
+.team-link.opponent-pill:hover{border-color:var(--gold);color:var(--gold);text-decoration:none;background:var(--gold-dim);}
+.fifa-rank{font-size:10px;color:var(--text-dim);font-weight:600;margin-top:2px;letter-spacing:0.3px;}
+.fifa-rank .num{color:var(--gold);}
+.cal-btn{background:transparent;border:1px solid var(--border-strong);color:var(--text-dim);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;}
+.cal-btn:hover{background:var(--gold-dim);color:var(--gold);border-color:var(--gold);}
+.cal-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.nat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
+.nat-stat{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.nat-stat-lbl{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:5px;}
+.nat-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--text);line-height:1.2;}
+.nat-stat-val.small{font-size:14px;font-family:'Inter',sans-serif;font-weight:500;}
+.form-list{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.form-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;}
+.form-row:last-child{border-bottom:none;}
+.form-result{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff;}
+.form-result.w{background:var(--live);color:var(--bg);}
+.form-result.d{background:#ff9800;color:var(--bg);}
+.form-result.l{background:var(--bbc);}
+.form-date{font-size:11px;color:var(--text-dim);font-weight:500;}
+.form-opp{color:var(--text);font-weight:500;}
+.form-opp .ha{color:var(--text-muted);font-size:11px;margin-left:4px;}
+.form-comp{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.3px;}
+.form-score{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--gold);}
 .footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);text-align:center;line-height:1.7;}
 .footer a{color:var(--text-dim);text-decoration:none;}
 .footer a:hover{color:var(--gold);}
@@ -186,7 +212,7 @@ select:focus{outline:none;border-color:var(--gold);}
     </div>
   </div>
   <div id="fl"></div>
-  <p class="note">All kick-off times in BST. <strong>†</strong> = estimated, pending official BBC / ITV confirmation. Scotland fixtures on ITV also air on STV / STV Player. Live scores update automatically during matches once your API is configured.</p>
+  <p class="note">All kick-off times in BST, taken from the FIFA-authoritative schedule and verified across Sky Sports, Live-FootballOnTV and Flashscore. Channels are BBC/ITV's current group-stage allocations (both UK TV listings sites agree on every game); knockout-stage channels depend on which teams qualify. Scotland fixtures on ITV also air on STV / STV Player. Live scores update automatically during matches once your API is configured.</p>
 </section>
 
 <section id="tab-groups" style="display:none;">
@@ -250,79 +276,136 @@ const BBC='BBC One',ITV='ITV1',TBC='TBC',BOTH='BBC One & ITV1';
 // Each fixture: id, group, matchday, date, BST time, home, away, venue, channel, ok=time confirmed
 // homeScore/awayScore/status will be updated by API
 const FX=[
-  {id:1,g:'A',md:1,dt:'2026-06-11',t:'20:00',h:'Mexico',a:'South Africa',v:'Estadio Azteca, Mexico City',ch:ITV,ok:true},
-  {id:2,g:'A',md:1,dt:'2026-06-12',t:'03:00',h:'South Korea',a:'Czechia',v:'Estadio Guadalajara',ch:BBC,ok:true},
-  {id:3,g:'A',md:2,dt:'2026-06-17',t:'20:00',h:'Mexico',a:'Czechia',v:'AT&T Stadium, Dallas',ch:TBC,ok:false},
-  {id:4,g:'A',md:2,dt:'2026-06-18',t:'02:00',h:'South Korea',a:'South Africa',v:'Mercedes-Benz Stadium, Atlanta',ch:TBC,ok:false},
-  {id:5,g:'A',md:3,dt:'2026-06-24',t:'22:00',h:'South Africa',a:'Czechia',v:'Estadio Azteca, Mexico City',ch:TBC,ok:false},
-  {id:6,g:'A',md:3,dt:'2026-06-24',t:'22:00',h:'Mexico',a:'South Korea',v:'Estadio Guadalajara',ch:BBC,ok:false},
-  {id:7,g:'B',md:1,dt:'2026-06-12',t:'20:00',h:'Canada',a:'Bosnia-Herzegovina',v:'BMO Field, Toronto',ch:BBC,ok:true},
-  {id:8,g:'B',md:1,dt:'2026-06-13',t:'20:00',h:'Qatar',a:'Switzerland',v:"Levi's Stadium, San Francisco",ch:TBC,ok:false},
-  {id:9,g:'B',md:2,dt:'2026-06-18',t:'21:00',h:'Canada',a:'Qatar',v:'BMO Field, Toronto',ch:TBC,ok:false},
-  {id:10,g:'B',md:2,dt:'2026-06-19',t:'23:00',h:'Switzerland',a:'Bosnia-Herzegovina',v:"Levi's Stadium, San Francisco",ch:BBC,ok:false},
-  {id:11,g:'B',md:3,dt:'2026-06-25',t:'22:00',h:'Canada',a:'Switzerland',v:'BC Place, Vancouver',ch:TBC,ok:false},
-  {id:12,g:'B',md:3,dt:'2026-06-25',t:'22:00',h:'Qatar',a:'Bosnia-Herzegovina',v:'Rose Bowl, Los Angeles',ch:TBC,ok:false},
-  {id:13,g:'C',md:1,dt:'2026-06-13',t:'23:00',h:'Brazil',a:'Morocco',v:'MetLife Stadium, New York/NJ',ch:ITV,ok:true},
-  {id:14,g:'C',md:1,dt:'2026-06-14',t:'02:00',h:'Haiti',a:'Scotland',v:'Gillette Stadium, Boston',ch:BBC,ok:true},
-  {id:15,g:'C',md:2,dt:'2026-06-19',t:'23:00',h:'Scotland',a:'Morocco',v:'Lincoln Financial Field, Philadelphia',ch:ITV,ok:true,note:'Also on STV'},
-  {id:16,g:'C',md:2,dt:'2026-06-19',t:'20:00',h:'Brazil',a:'Haiti',v:'Gillette Stadium, Boston',ch:BBC,ok:false},
-  {id:17,g:'C',md:3,dt:'2026-06-24',t:'02:00',h:'Brazil',a:'Scotland',v:'MetLife Stadium, New York/NJ',ch:BBC,ok:true},
-  {id:18,g:'C',md:3,dt:'2026-06-24',t:'02:00',h:'Morocco',a:'Haiti',v:'Lincoln Financial Field, Philadelphia',ch:ITV,ok:false},
-  {id:19,g:'D',md:1,dt:'2026-06-13',t:'02:00',h:'USA',a:'Paraguay',v:'SoFi Stadium, Los Angeles',ch:ITV,ok:true},
-  {id:20,g:'D',md:1,dt:'2026-06-14',t:'05:00',h:'Australia',a:'Turkey',v:'Lumen Field, Seattle',ch:BBC,ok:true},
-  {id:21,g:'D',md:2,dt:'2026-06-19',t:'21:00',h:'USA',a:'Turkey',v:'Rose Bowl, Los Angeles',ch:BBC,ok:false},
-  {id:22,g:'D',md:2,dt:'2026-06-20',t:'01:00',h:'Australia',a:'Paraguay',v:'Lumen Field, Seattle',ch:TBC,ok:false},
-  {id:23,g:'D',md:3,dt:'2026-06-25',t:'01:00',h:'USA',a:'Australia',v:'SoFi Stadium, Los Angeles',ch:BBC,ok:false},
-  {id:24,g:'D',md:3,dt:'2026-06-25',t:'01:00',h:'Turkey',a:'Paraguay',v:'Lumen Field, Seattle',ch:TBC,ok:false},
-  {id:25,g:'E',md:1,dt:'2026-06-14',t:'18:00',h:'Germany',a:'Curaçao',v:'NRG Stadium, Houston',ch:BBC,ok:false},
-  {id:26,g:'E',md:1,dt:'2026-06-14',t:'21:00',h:'Ivory Coast',a:'Ecuador',v:'Lincoln Financial Field, Philadelphia',ch:ITV,ok:false},
-  {id:27,g:'E',md:2,dt:'2026-06-19',t:'18:00',h:'Germany',a:'Ecuador',v:'AT&T Stadium, Dallas',ch:ITV,ok:false},
-  {id:28,g:'E',md:2,dt:'2026-06-20',t:'22:00',h:'Ivory Coast',a:'Curaçao',v:'NRG Stadium, Houston',ch:TBC,ok:false},
-  {id:29,g:'E',md:3,dt:'2026-06-25',t:'22:00',h:'Germany',a:'Ivory Coast',v:'NRG Stadium, Houston',ch:BBC,ok:false},
-  {id:30,g:'E',md:3,dt:'2026-06-25',t:'22:00',h:'Ecuador',a:'Curaçao',v:'Lincoln Financial Field, Philadelphia',ch:TBC,ok:false},
-  {id:31,g:'F',md:1,dt:'2026-06-14',t:'22:00',h:'Netherlands',a:'Japan',v:'AT&T Stadium, Dallas',ch:BBC,ok:true},
-  {id:32,g:'F',md:1,dt:'2026-06-15',t:'03:00',h:'Sweden',a:'Tunisia',v:'Estadio BBVA, Monterrey',ch:ITV,ok:false},
-  {id:33,g:'F',md:2,dt:'2026-06-20',t:'22:00',h:'Netherlands',a:'Sweden',v:'Arrowhead Stadium, Kansas City',ch:ITV,ok:false},
-  {id:34,g:'F',md:2,dt:'2026-06-21',t:'02:00',h:'Japan',a:'Tunisia',v:'AT&T Stadium, Dallas',ch:BBC,ok:false},
-  {id:35,g:'F',md:3,dt:'2026-06-25',t:'21:00',h:'Netherlands',a:'Tunisia',v:'NRG Stadium, Houston',ch:TBC,ok:false},
-  {id:36,g:'F',md:3,dt:'2026-06-25',t:'21:00',h:'Japan',a:'Sweden',v:'AT&T Stadium, Dallas',ch:TBC,ok:false},
-  {id:37,g:'G',md:1,dt:'2026-06-15',t:'20:00',h:'Belgium',a:'Egypt',v:'Lumen Field, Seattle',ch:BBC,ok:true},
-  {id:38,g:'G',md:1,dt:'2026-06-15',t:'23:00',h:'Iran',a:'New Zealand',v:'SoFi Stadium, Los Angeles',ch:ITV,ok:false},
-  {id:39,g:'G',md:2,dt:'2026-06-21',t:'20:00',h:'Belgium',a:'Iran',v:'BC Place, Vancouver',ch:ITV,ok:false},
-  {id:40,g:'G',md:2,dt:'2026-06-21',t:'23:00',h:'Egypt',a:'New Zealand',v:'Rose Bowl, Los Angeles',ch:BBC,ok:false},
-  {id:41,g:'G',md:3,dt:'2026-06-26',t:'01:00',h:'Belgium',a:'New Zealand',v:'Lumen Field, Seattle',ch:TBC,ok:false},
-  {id:42,g:'G',md:3,dt:'2026-06-26',t:'01:00',h:'Egypt',a:'Iran',v:'SoFi Stadium, Los Angeles',ch:TBC,ok:false},
-  {id:43,g:'H',md:1,dt:'2026-06-15',t:'17:00',h:'Spain',a:'Cape Verde',v:'Mercedes-Benz Stadium, Atlanta',ch:ITV,ok:false},
-  {id:44,g:'H',md:1,dt:'2026-06-15',t:'23:00',h:'Saudi Arabia',a:'Uruguay',v:'Hard Rock Stadium, Miami',ch:BBC,ok:false},
-  {id:45,g:'H',md:2,dt:'2026-06-21',t:'22:00',h:'Spain',a:'Saudi Arabia',v:'Hard Rock Stadium, Miami',ch:ITV,ok:false},
-  {id:46,g:'H',md:2,dt:'2026-06-22',t:'01:00',h:'Uruguay',a:'Cape Verde',v:'Mercedes-Benz Stadium, Atlanta',ch:TBC,ok:false},
-  {id:47,g:'H',md:3,dt:'2026-06-26',t:'22:00',h:'Spain',a:'Uruguay',v:'AT&T Stadium, Dallas',ch:ITV,ok:false},
-  {id:48,g:'H',md:3,dt:'2026-06-26',t:'22:00',h:'Saudi Arabia',a:'Cape Verde',v:'Mercedes-Benz Stadium, Atlanta',ch:TBC,ok:false},
-  {id:49,g:'I',md:1,dt:'2026-06-16',t:'20:00',h:'France',a:'Senegal',v:'MetLife Stadium, New York/NJ',ch:ITV,ok:false},
-  {id:50,g:'I',md:1,dt:'2026-06-16',t:'23:00',h:'Norway',a:'Iraq',v:'Gillette Stadium, Boston',ch:BBC,ok:false},
-  {id:51,g:'I',md:2,dt:'2026-06-22',t:'20:00',h:'France',a:'Iraq',v:'Lincoln Financial Field, Philadelphia',ch:BBC,ok:false},
-  {id:52,g:'I',md:2,dt:'2026-06-22',t:'23:00',h:'Senegal',a:'Norway',v:'MetLife Stadium, New York/NJ',ch:TBC,ok:false},
-  {id:53,g:'I',md:3,dt:'2026-06-26',t:'20:00',h:'France',a:'Norway',v:'MetLife Stadium, New York/NJ',ch:ITV,ok:false},
-  {id:54,g:'I',md:3,dt:'2026-06-26',t:'20:00',h:'Senegal',a:'Iraq',v:'Gillette Stadium, Boston',ch:BBC,ok:false},
-  {id:55,g:'J',md:1,dt:'2026-06-17',t:'02:00',h:'Argentina',a:'Algeria',v:'Arrowhead Stadium, Kansas City',ch:ITV,ok:false},
-  {id:56,g:'J',md:1,dt:'2026-06-17',t:'05:00',h:'Austria',a:'Jordan',v:"Levi's Stadium, San Francisco",ch:BBC,ok:false},
-  {id:57,g:'J',md:2,dt:'2026-06-22',t:'02:00',h:'Argentina',a:'Jordan',v:"Levi's Stadium, San Francisco",ch:BBC,ok:false},
-  {id:58,g:'J',md:2,dt:'2026-06-23',t:'05:00',h:'Austria',a:'Algeria',v:'Arrowhead Stadium, Kansas City',ch:TBC,ok:false},
-  {id:59,g:'J',md:3,dt:'2026-06-26',t:'03:00',h:'Argentina',a:'Austria',v:'AT&T Stadium, Dallas',ch:ITV,ok:false},
-  {id:60,g:'J',md:3,dt:'2026-06-26',t:'03:00',h:'Algeria',a:'Jordan',v:'Arrowhead Stadium, Kansas City',ch:TBC,ok:false},
-  {id:61,g:'K',md:1,dt:'2026-06-17',t:'18:00',h:'Portugal',a:'Colombia',v:'NRG Stadium, Houston',ch:ITV,ok:false},
-  {id:62,g:'K',md:1,dt:'2026-06-17',t:'21:00',h:'DR Congo',a:'Uzbekistan',v:'Estadio Azteca, Mexico City',ch:BBC,ok:false},
-  {id:63,g:'K',md:2,dt:'2026-06-23',t:'20:00',h:'Portugal',a:'Uzbekistan',v:'Arrowhead Stadium, Kansas City',ch:BBC,ok:false},
-  {id:64,g:'K',md:2,dt:'2026-06-23',t:'23:00',h:'Colombia',a:'DR Congo',v:'NRG Stadium, Houston',ch:TBC,ok:false},
-  {id:65,g:'K',md:3,dt:'2026-06-27',t:'20:00',h:'Portugal',a:'DR Congo',v:'NRG Stadium, Houston',ch:ITV,ok:false},
-  {id:66,g:'K',md:3,dt:'2026-06-27',t:'20:00',h:'Colombia',a:'Uzbekistan',v:'Arrowhead Stadium, Kansas City',ch:BBC,ok:false},
-  {id:67,g:'L',md:1,dt:'2026-06-17',t:'21:00',h:'England',a:'Croatia',v:'AT&T Stadium, Dallas',ch:ITV,ok:true},
-  {id:68,g:'L',md:1,dt:'2026-06-18',t:'02:00',h:'Ghana',a:'Panama',v:'BMO Field, Toronto',ch:BBC,ok:false},
-  {id:69,g:'L',md:2,dt:'2026-06-23',t:null,h:'England',a:'Ghana',v:'NRG Stadium, Houston',ch:BBC,ok:true},
-  {id:70,g:'L',md:2,dt:'2026-06-23',t:null,h:'Croatia',a:'Panama',v:'BMO Field, Toronto',ch:TBC,ok:false},
-  {id:71,g:'L',md:3,dt:'2026-06-27',t:'22:00',h:'England',a:'Panama',v:'BMO Field, Toronto',ch:ITV,ok:true},
-  {id:72,g:'L',md:3,dt:'2026-06-27',t:'22:00',h:'Croatia',a:'Ghana',v:'AT&T Stadium, Dallas',ch:BBC,ok:false}
+  {id:1,g:'A',md:1,dt:'2026-06-11',t:'20:00',h:'Mexico',a:'South Africa',v:"Estadio Azteca, Mexico City",ch:'ITV1',ok:true},
+  {id:2,g:'A',md:1,dt:'2026-06-12',t:'03:00',h:'South Korea',a:'Czechia',v:"Estadio Akron, Guadalajara",ch:'ITV1',ok:true},
+  {id:3,g:'B',md:1,dt:'2026-06-12',t:'20:00',h:'Canada',a:'Bosnia-Herzegovina',v:"BMO Field, Toronto",ch:'BBC One',ok:true},
+  {id:4,g:'D',md:1,dt:'2026-06-13',t:'02:00',h:'USA',a:'Paraguay',v:"SoFi Stadium, Los Angeles",ch:'BBC One',ok:true},
+  {id:5,g:'B',md:1,dt:'2026-06-13',t:'20:00',h:'Qatar',a:'Switzerland',v:"Levi's Stadium, San Francisco Bay",ch:'ITV1',ok:true},
+  {id:6,g:'C',md:1,dt:'2026-06-13',t:'23:00',h:'Brazil',a:'Morocco',v:"MetLife Stadium, New York/NJ",ch:'BBC One',ok:true},
+  {id:7,g:'C',md:1,dt:'2026-06-14',t:'02:00',h:'Haiti',a:'Scotland',v:"Gillette Stadium, Boston",ch:'BBC One',ok:true},
+  {id:8,g:'D',md:1,dt:'2026-06-14',t:'05:00',h:'Australia',a:'Turkey',v:"BC Place, Vancouver",ch:'ITV1',ok:true},
+  {id:9,g:'E',md:1,dt:'2026-06-14',t:'18:00',h:'Germany',a:'Curaçao',v:"NRG Stadium, Houston",ch:'ITV1',ok:true},
+  {id:10,g:'F',md:1,dt:'2026-06-14',t:'21:00',h:'Netherlands',a:'Japan',v:"AT&T Stadium, Dallas",ch:'ITV1',ok:true},
+  {id:11,g:'E',md:1,dt:'2026-06-15',t:'00:00',h:'Ivory Coast',a:'Ecuador',v:"Lincoln Financial Field, Philadelphia",ch:'BBC One',ok:true},
+  {id:12,g:'F',md:1,dt:'2026-06-15',t:'03:00',h:'Sweden',a:'Tunisia',v:"Estadio BBVA, Monterrey",ch:'ITV1',ok:true},
+  {id:13,g:'H',md:1,dt:'2026-06-15',t:'17:00',h:'Spain',a:'Cape Verde',v:"Mercedes-Benz Stadium, Atlanta",ch:'ITV1',ok:true},
+  {id:14,g:'G',md:1,dt:'2026-06-15',t:'20:00',h:'Belgium',a:'Egypt',v:"Lumen Field, Seattle",ch:'BBC One',ok:true},
+  {id:15,g:'H',md:1,dt:'2026-06-15',t:'23:00',h:'Saudi Arabia',a:'Uruguay',v:"Hard Rock Stadium, Miami",ch:'ITV1',ok:true},
+  {id:16,g:'G',md:1,dt:'2026-06-16',t:'02:00',h:'Iran',a:'New Zealand',v:"SoFi Stadium, Los Angeles",ch:'BBC One',ok:true},
+  {id:17,g:'I',md:1,dt:'2026-06-16',t:'20:00',h:'France',a:'Senegal',v:"MetLife Stadium, New York/NJ",ch:'BBC One',ok:true},
+  {id:18,g:'I',md:1,dt:'2026-06-16',t:'23:00',h:'Iraq',a:'Norway',v:"Gillette Stadium, Boston",ch:'BBC One',ok:true},
+  {id:19,g:'J',md:1,dt:'2026-06-17',t:'02:00',h:'Argentina',a:'Algeria',v:"Arrowhead Stadium, Kansas City",ch:'ITV1',ok:true},
+  {id:20,g:'J',md:1,dt:'2026-06-17',t:'05:00',h:'Austria',a:'Jordan',v:"Levi's Stadium, San Francisco Bay",ch:'BBC One',ok:true},
+  {id:21,g:'K',md:1,dt:'2026-06-17',t:'18:00',h:'Portugal',a:'DR Congo',v:"NRG Stadium, Houston",ch:'BBC One',ok:true},
+  {id:22,g:'L',md:1,dt:'2026-06-17',t:'21:00',h:'England',a:'Croatia',v:"AT&T Stadium, Dallas",ch:'ITV1',ok:true},
+  {id:23,g:'L',md:1,dt:'2026-06-18',t:'00:00',h:'Ghana',a:'Panama',v:"BMO Field, Toronto",ch:'ITV1',ok:true},
+  {id:24,g:'K',md:1,dt:'2026-06-18',t:'03:00',h:'Uzbekistan',a:'Colombia',v:"Estadio Azteca, Mexico City",ch:'BBC One',ok:true},
+  {id:25,g:'A',md:2,dt:'2026-06-18',t:'17:00',h:'Czechia',a:'South Africa',v:"Mercedes-Benz Stadium, Atlanta",ch:'BBC One',ok:true},
+  {id:26,g:'B',md:2,dt:'2026-06-18',t:'20:00',h:'Switzerland',a:'Bosnia-Herzegovina',v:"SoFi Stadium, Los Angeles",ch:'ITV1',ok:true},
+  {id:27,g:'B',md:2,dt:'2026-06-18',t:'23:00',h:'Canada',a:'Qatar',v:"BC Place, Vancouver",ch:'ITV1',ok:true},
+  {id:28,g:'A',md:2,dt:'2026-06-19',t:'02:00',h:'Mexico',a:'South Korea',v:"Estadio Akron, Guadalajara",ch:'BBC One',ok:true},
+  {id:29,g:'D',md:2,dt:'2026-06-19',t:'20:00',h:'USA',a:'Australia',v:"Lumen Field, Seattle",ch:'BBC One',ok:true},
+  {id:30,g:'C',md:2,dt:'2026-06-19',t:'23:00',h:'Scotland',a:'Morocco',v:"Gillette Stadium, Boston",ch:'ITV1',ok:true,note:'Also on STV'},
+  {id:31,g:'C',md:2,dt:'2026-06-20',t:'01:30',h:'Brazil',a:'Haiti',v:"Lincoln Financial Field, Philadelphia",ch:'ITV1',ok:true},
+  {id:32,g:'D',md:2,dt:'2026-06-20',t:'04:00',h:'Turkey',a:'Paraguay',v:"Levi's Stadium, San Francisco Bay",ch:'ITV1',ok:true},
+  {id:33,g:'F',md:2,dt:'2026-06-20',t:'18:00',h:'Netherlands',a:'Sweden',v:"NRG Stadium, Houston",ch:'BBC One',ok:true},
+  {id:34,g:'E',md:2,dt:'2026-06-20',t:'21:00',h:'Germany',a:'Ivory Coast',v:"BMO Field, Toronto",ch:'ITV1',ok:true},
+  {id:35,g:'E',md:2,dt:'2026-06-21',t:'01:00',h:'Ecuador',a:'Curaçao',v:"Arrowhead Stadium, Kansas City",ch:'BBC One',ok:true},
+  {id:36,g:'F',md:2,dt:'2026-06-21',t:'05:00',h:'Tunisia',a:'Japan',v:"Estadio BBVA, Monterrey",ch:'BBC One',ok:true},
+  {id:37,g:'H',md:2,dt:'2026-06-21',t:'17:00',h:'Spain',a:'Saudi Arabia',v:"Mercedes-Benz Stadium, Atlanta",ch:'BBC One',ok:true},
+  {id:38,g:'G',md:2,dt:'2026-06-21',t:'20:00',h:'Belgium',a:'Iran',v:"SoFi Stadium, Los Angeles",ch:'ITV1',ok:true},
+  {id:39,g:'H',md:2,dt:'2026-06-21',t:'23:00',h:'Uruguay',a:'Cape Verde',v:"Hard Rock Stadium, Miami",ch:'BBC One',ok:true},
+  {id:40,g:'G',md:2,dt:'2026-06-22',t:'02:00',h:'New Zealand',a:'Egypt',v:"BC Place, Vancouver",ch:'ITV1',ok:true},
+  {id:41,g:'J',md:2,dt:'2026-06-22',t:'18:00',h:'Argentina',a:'Austria',v:"AT&T Stadium, Dallas",ch:'BBC One',ok:true},
+  {id:42,g:'I',md:2,dt:'2026-06-22',t:'22:00',h:'France',a:'Iraq',v:"Lincoln Financial Field, Philadelphia",ch:'BBC One',ok:true},
+  {id:43,g:'I',md:2,dt:'2026-06-23',t:'01:00',h:'Norway',a:'Senegal',v:"BMO Field, Toronto",ch:'ITV1',ok:true},
+  {id:44,g:'J',md:2,dt:'2026-06-23',t:'04:00',h:'Jordan',a:'Algeria',v:"Levi's Stadium, San Francisco Bay",ch:'ITV1',ok:true},
+  {id:45,g:'K',md:2,dt:'2026-06-23',t:'18:00',h:'Portugal',a:'Uzbekistan',v:"NRG Stadium, Houston",ch:'ITV1',ok:true},
+  {id:46,g:'L',md:2,dt:'2026-06-23',t:'21:00',h:'England',a:'Ghana',v:"Gillette Stadium, Boston",ch:'BBC One',ok:true},
+  {id:47,g:'L',md:2,dt:'2026-06-24',t:'00:00',h:'Panama',a:'Croatia',v:"Gillette Stadium, Boston",ch:'BBC One',ok:true},
+  {id:48,g:'K',md:2,dt:'2026-06-24',t:'03:00',h:'Colombia',a:'DR Congo',v:"Estadio Akron, Guadalajara",ch:'ITV1',ok:true},
+  {id:49,g:'B',md:3,dt:'2026-06-24',t:'20:00',h:'Switzerland',a:'Canada',v:"BC Place, Vancouver",ch:'ITV1',ok:true},
+  {id:50,g:'B',md:3,dt:'2026-06-24',t:'20:00',h:'Bosnia-Herzegovina',a:'Qatar',v:"Lumen Field, Seattle",ch:'ITV1',ok:true},
+  {id:51,g:'C',md:3,dt:'2026-06-24',t:'23:00',h:'Morocco',a:'Haiti',v:"Mercedes-Benz Stadium, Atlanta",ch:'BBC One',ok:true},
+  {id:52,g:'C',md:3,dt:'2026-06-24',t:'23:00',h:'Scotland',a:'Brazil',v:"Hard Rock Stadium, Miami",ch:'BBC One',ok:true},
+  {id:53,g:'A',md:3,dt:'2026-06-25',t:'02:00',h:'South Africa',a:'South Korea',v:"Estadio BBVA, Monterrey",ch:'BBC One',ok:true},
+  {id:54,g:'A',md:3,dt:'2026-06-25',t:'02:00',h:'Czechia',a:'Mexico',v:"Estadio Azteca, Mexico City",ch:'BBC One',ok:true},
+  {id:55,g:'E',md:3,dt:'2026-06-25',t:'21:00',h:'Curaçao',a:'Ivory Coast',v:"Lincoln Financial Field, Philadelphia",ch:'BBC One',ok:true},
+  {id:56,g:'E',md:3,dt:'2026-06-25',t:'21:00',h:'Ecuador',a:'Germany',v:"MetLife Stadium, New York/NJ",ch:'BBC One',ok:true},
+  {id:57,g:'F',md:3,dt:'2026-06-26',t:'00:00',h:'Tunisia',a:'Netherlands',v:"Arrowhead Stadium, Kansas City",ch:'BBC One',ok:true},
+  {id:58,g:'F',md:3,dt:'2026-06-26',t:'00:00',h:'Japan',a:'Sweden',v:"AT&T Stadium, Dallas",ch:'BBC One',ok:true},
+  {id:59,g:'D',md:3,dt:'2026-06-26',t:'03:00',h:'Turkey',a:'USA',v:"SoFi Stadium, Los Angeles",ch:'ITV1',ok:true},
+  {id:60,g:'D',md:3,dt:'2026-06-26',t:'03:00',h:'Paraguay',a:'Australia',v:"Levi's Stadium, San Francisco Bay",ch:'ITV1',ok:true},
+  {id:61,g:'I',md:3,dt:'2026-06-26',t:'20:00',h:'Norway',a:'France',v:"Gillette Stadium, Boston",ch:'ITV1',ok:true},
+  {id:62,g:'I',md:3,dt:'2026-06-26',t:'20:00',h:'Senegal',a:'Iraq',v:"BMO Field, Toronto",ch:'ITV1',ok:true},
+  {id:63,g:'H',md:3,dt:'2026-06-27',t:'01:00',h:'Cape Verde',a:'Saudi Arabia',v:"NRG Stadium, Houston",ch:'ITV1',ok:true},
+  {id:64,g:'H',md:3,dt:'2026-06-27',t:'01:00',h:'Uruguay',a:'Spain',v:"Estadio Akron, Guadalajara",ch:'ITV1',ok:true},
+  {id:65,g:'G',md:3,dt:'2026-06-27',t:'04:00',h:'New Zealand',a:'Belgium',v:"BC Place, Vancouver",ch:'BBC One',ok:true},
+  {id:66,g:'G',md:3,dt:'2026-06-27',t:'04:00',h:'Egypt',a:'Iran',v:"Lumen Field, Seattle",ch:'BBC One',ok:true},
+  {id:67,g:'L',md:3,dt:'2026-06-27',t:'22:00',h:'Panama',a:'England',v:"MetLife Stadium, New York/NJ",ch:'ITV1',ok:true},
+  {id:68,g:'L',md:3,dt:'2026-06-27',t:'22:00',h:'Croatia',a:'Ghana',v:"Lincoln Financial Field, Philadelphia",ch:'ITV1',ok:true},
+  {id:69,g:'K',md:3,dt:'2026-06-28',t:'00:30',h:'Colombia',a:'Portugal',v:"Hard Rock Stadium, Miami",ch:'BBC One',ok:true},
+  {id:70,g:'K',md:3,dt:'2026-06-28',t:'00:30',h:'DR Congo',a:'Uzbekistan',v:"Mercedes-Benz Stadium, Atlanta",ch:'BBC One',ok:true},
+  {id:71,g:'J',md:3,dt:'2026-06-28',t:'03:00',h:'Algeria',a:'Austria',v:"Arrowhead Stadium, Kansas City",ch:'BBC One',ok:true},
+  {id:72,g:'J',md:3,dt:'2026-06-28',t:'03:00',h:'Jordan',a:'Argentina',v:"AT&T Stadium, Dallas",ch:'BBC One',ok:true}
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NATION PROFILES — FIFA rank (April 2026), manager, WC history, recent form
+// Update these as squads are announced and results come in.
+// r=rank, m=manager, a=WC appearances, b=best finish, l=last WC performance
+// f=recent form (d=date, o=opponent, s=score from nation's POV, ha=H/A/N, c=competition)
+// ═══════════════════════════════════════════════════════════════════════════
+const NATIONS={
+'France':{r:1,m:'Didier Deschamps',a:16,b:'Champions (1998, 2018)',l:'2022: Runners-up (lost final on pens to Argentina)',f:[{d:'2026-03-26',o:'Croatia',s:'2-0',ha:'H',c:'Friendly'},{d:'2026-03-23',o:'Belgium',s:'2-2',ha:'A',c:'Friendly'},{d:'2025-11-18',o:'Israel',s:'3-1',ha:'N',c:'Nations Lg'},{d:'2025-11-14',o:'Italy',s:'1-3',ha:'A',c:'Nations Lg'},{d:'2025-10-14',o:'Belgium',s:'2-1',ha:'H',c:'Nations Lg'}],sq:{s:'CONF',gk:['Mike Maignan (AC Milan)','Robin Risser (Lens)','Brice Samba (Rennes)'],df:['Lucas Digne (Aston Villa)','Malo Gusto (Chelsea)','Lucas Hernández (PSG)','Theo Hernández (Al Hilal)','Ibrahima Konaté (Liverpool)','Jules Koundé (Barcelona)','Maxence Lacroix (Crystal Palace)','William Saliba (Arsenal)','Dayot Upamecano (Bayern Munich)'],mf:['N\'Golo Kanté (Fenerbahçe)','Manu Koné (Roma)','Adrien Rabiot (AC Milan)','Aurélien Tchouaméni (Real Madrid)','Warren Zaïre-Emery (PSG)'],fw:['Maghnes Akliouche (Monaco)','Bradley Barcola (PSG)','Rayan Cherki (Manchester City)','Ousmane Dembélé (PSG)','Désiré Doué (PSG)','Jean-Philippe Mateta (Crystal Palace)','Kylian Mbappé (Real Madrid)','Michael Olise (Bayern Munich)','Marcus Thuram (Inter Milan)']}},
+'Spain':{r:2,m:'Luis de la Fuente',a:17,b:'Champions (2010)',l:'2022: Round of 16 (lost on pens to Morocco)',f:[{d:'2026-03-25',o:'Netherlands',s:'2-1',ha:'H',c:'Nations Lg QF'},{d:'2026-03-22',o:'Netherlands',s:'2-2',ha:'A',c:'Nations Lg QF'},{d:'2025-11-19',o:'Switzerland',s:'3-2',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Denmark',s:'2-1',ha:'H',c:'Nations Lg'},{d:'2025-10-14',o:'Serbia',s:'3-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Unai Simón (Athletic Club)','David Raya (Arsenal)','Joan García (Barcelona)'],df:['Aymeric Laporte (Athletic Club)','Marc Cucurella (Chelsea)','Marcos Llorente (Atlético Madrid)','Eric García (Barcelona)','Pedro Porro (Tottenham)','Álex Grimaldo (Bayer Leverkusen)','Pau Cubarsí (Barcelona)','Marc Pubill (Atlético Madrid)'],mf:['Rodri (Manchester City)','Fabián Ruiz (PSG)','Mikel Merino (Arsenal)','Pedri (Barcelona)','Gavi (Barcelona)','Martín Zubimendi (Arsenal)','Álex Baena (Atlético Madrid)'],fw:['Ferran Torres (Barcelona)','Mikel Oyarzabal (Real Sociedad)','Dani Olmo (Barcelona)','Nico Williams (Athletic Club)','Lamine Yamal (Barcelona)','Yeremy Pino (Crystal Palace)','Borja Iglesias (Celta Vigo)','Víctor Muñoz (Osasuna)']}},
+'Argentina':{r:3,m:'Lionel Scaloni',a:18,b:'Champions (1978, 1986, 2022)',l:'2022: Champions',f:[{d:'2026-03-25',o:'Brazil',s:'4-1',ha:'H',c:'WCQ'},{d:'2026-03-21',o:'Uruguay',s:'1-0',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'Paraguay',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Peru',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Bolivia',s:'3-0',ha:'A',c:'WCQ'}],sq:{s:'PREL',gk:['Emiliano Martínez (Aston Villa)','Gerónimo Rulli (Marseille)','Juan Musso (Atlético Madrid)','Walter Benítez (Crystal Palace)','Facundo Cambeses (Racing Club)'],df:['Nahuel Molina (Atlético Madrid)','Gonzalo Montiel (River Plate)','Lisandro Martínez (Manchester United)','Cristian Romero (Tottenham)','Nicolás Otamendi (Benfica)','Leonardo Balerdi (Marseille)','Marcos Senesi (Bournemouth)','Marcos Acuña (River Plate)','Nicolás Tagliafico (Lyon)','Lucas Martínez Quarta (River Plate)','Facundo Medina (Marseille)'],mf:['Rodrigo De Paul (Inter Miami)','Leandro Paredes (Boca Juniors)','Enzo Fernández (Chelsea)','Alexis Mac Allister (Liverpool)','Exequiel Palacios (Bayer Leverkusen)','Giovani Lo Celso (Real Betis)','Alan Varela (Porto)','Nicolás Domínguez (Nottingham Forest)','Valentín Barco (Strasbourg)','Emiliano Buendía (Aston Villa)'],fw:['Lionel Messi (Inter Miami)','Lautaro Martínez (Inter Milan)','Julián Álvarez (Atlético Madrid)','Nicolás González (Atlético Madrid)','Alejandro Garnacho (Chelsea)','Thiago Almada (Atlético Madrid)','Giuliano Simeone (Atlético Madrid)','Franco Mastantuono (Real Madrid)','Nico Paz (Como)','Matías Soulé (Roma)']}},
+'England':{r:4,m:'Thomas Tuchel',a:16,b:'Champions (1966)',l:'2022: Quarter-finals (lost 2-1 to France)',f:[{d:'2026-03-28',o:'Latvia',s:'3-0',ha:'A',c:'WCQ'},{d:'2026-03-25',o:'Albania',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-17',o:'Serbia',s:'2-1',ha:'H',c:'WCQ'},{d:'2025-11-13',o:'Andorra',s:'4-0',ha:'A',c:'WCQ'},{d:'2025-10-14',o:'Greece',s:'3-0',ha:'A',c:'WCQ'}],sq:{s:'CONF',gk:['Jordan Pickford (Everton)','Dean Henderson (Crystal Palace)','James Trafford (Manchester City)'],df:['Reece James (Chelsea)','Ezri Konsa (Aston Villa)','Jarell Quansah (Bayer Leverkusen)','John Stones (Manchester City)','Marc Guéhi (Manchester City)','Dan Burn (Newcastle)','Nico O\'Reilly (Manchester City)','Djed Spence (Tottenham)','Tino Livramento (Newcastle)'],mf:['Declan Rice (Arsenal)','Elliot Anderson (Nottingham Forest)','Kobbie Mainoo (Manchester United)','Jordan Henderson (Brentford)','Morgan Rogers (Aston Villa)','Jude Bellingham (Real Madrid)','Eberechi Eze (Arsenal)'],fw:['Harry Kane (Bayern Munich)','Ivan Toney (Al-Ahli)','Ollie Watkins (Aston Villa)','Bukayo Saka (Arsenal)','Marcus Rashford (Barcelona)','Anthony Gordon (Newcastle)']}},
+'Portugal':{r:5,m:'Roberto Martínez',a:9,b:'3rd place (1966)',l:'2022: Quarter-finals (lost 1-0 to Morocco)',f:[{d:'2026-03-25',o:'Denmark',s:'3-2',ha:'H',c:'Nations Lg QF'},{d:'2026-03-22',o:'Denmark',s:'0-1',ha:'A',c:'Nations Lg QF'},{d:'2025-11-18',o:'Croatia',s:'1-1',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Poland',s:'5-1',ha:'H',c:'Nations Lg'},{d:'2025-10-15',o:'Scotland',s:'0-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Diogo Costa (Porto)','José Sá (Wolves)','Rui Silva (Sporting CP)','Ricardo Velho (Gençlerbirliği)'],df:['Diogo Dalot (Manchester United)','Matheus Nunes (Manchester City)','Nélson Semedo (Fenerbahçe)','João Cancelo (Barcelona)','Nuno Mendes (PSG)','Gonçalo Inácio (Sporting CP)','Renato Veiga (Villarreal)','Rúben Dias (Manchester City)','Tomás Araújo (Benfica)'],mf:['Rúben Neves (Al Hilal)','Samuel Costa (Mallorca)','João Neves (PSG)','Vitinha (PSG)','Bruno Fernandes (Manchester United)','Bernardo Silva (Manchester City)'],fw:['João Félix (Al Nassr)','Francisco Trincão (Sporting CP)','Francisco Conceição (Juventus)','Pedro Neto (Chelsea)','Rafael Leão (AC Milan)','Gonçalo Guedes (Real Sociedad)','Gonçalo Ramos (PSG)','Cristiano Ronaldo (Al Nassr)']}},
+'Brazil':{r:6,m:'Carlo Ancelotti',a:22,b:'Champions (1958, 1962, 1970, 1994, 2002)',l:'2022: Quarter-finals (lost on pens to Croatia)',f:[{d:'2026-03-25',o:'Argentina',s:'1-4',ha:'A',c:'WCQ'},{d:'2026-03-21',o:'Colombia',s:'2-2',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Uruguay',s:'1-1',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Venezuela',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Peru',s:'4-0',ha:'A',c:'WCQ'}],sq:{s:'CONF',gk:['Alisson (Liverpool)','Ederson (Fenerbahçe)','Weverton (Grêmio)'],df:['Marquinhos (PSG)','Gabriel Magalhães (Arsenal)','Bremer (Juventus)','Roger Ibañez (Al Ahli)','Léo Pereira (Flamengo)','Wesley (Roma)','Danilo (Flamengo)','Alex Sandro (Flamengo)','Douglas Santos (Zenit)'],mf:['Casemiro (Manchester United)','Bruno Guimarães (Newcastle)','Fabinho (Al-Ittihad)','Danilo (Botafogo)','Lucas Paquetá (Flamengo)'],fw:['Vinícius Jr (Real Madrid)','Raphinha (Barcelona)','Matheus Cunha (Manchester United)','Luiz Henrique (Zenit)','Igor Thiago (Brentford)','Endrick (Lyon)','Gabriel Martinelli (Arsenal)','Rayan (Bournemouth)','Neymar (Santos)']}},
+'Netherlands':{r:7,m:'Ronald Koeman',a:11,b:'Runners-up (1974, 1978, 2010)',l:'2022: Quarter-finals (lost on pens to Argentina)',f:[{d:'2026-03-25',o:'Spain',s:'1-2',ha:'A',c:'Nations Lg QF'},{d:'2026-03-22',o:'Spain',s:'2-2',ha:'H',c:'Nations Lg QF'},{d:'2025-11-18',o:'Hungary',s:'4-0',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Bosnia',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-10-14',o:'Germany',s:'1-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Bart Verbruggen (Brighton)','Mark Flekken (Bayer Leverkusen)','Robin Roefs (Sunderland)'],df:['Nathan Aké (Manchester City)','Virgil van Dijk (Liverpool)','Denzel Dumfries (Inter Milan)','Jorrel Hato (Chelsea)','Jan Paul van Hecke (Brighton)','Micky van de Ven (Tottenham)','Jurriën Timber (Arsenal)'],mf:['Ryan Gravenberch (Liverpool)','Frenkie de Jong (Barcelona)','Teun Koopmeiners (Juventus)','Tijjani Reijnders (Manchester City)','Marten de Roon (Atalanta)','Guus Til (PSV)','Quinten Timber (Marseille)','Mats Wieffer (Brighton)'],fw:['Brian Brobbey (Sunderland)','Memphis Depay (Corinthians)','Cody Gakpo (Liverpool)','Justin Kluivert (Bournemouth)','Noa Lang (Galatasaray)','Donyell Malen (Roma)','Crysencio Summerville (West Ham)','Wout Weghorst (Ajax)']}},
+'Morocco':{r:8,m:'Mohamed Ouahbi',a:6,b:'4th place (2022)',l:'2022: Semi-finals (lost 2-0 to France)',f:[{d:'2026-03-28',o:'Niger',s:'4-0',ha:'H',c:'AFCON Q'},{d:'2026-03-25',o:'Tanzania',s:'2-0',ha:'A',c:'AFCON Q'},{d:'2025-11-18',o:'Gabon',s:'5-1',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Lesotho',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Zambia',s:'2-1',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Yassine Bounou (Al Hilal)','Munir Mohamedi (RS Berkane)','Ahmed Tagnaouti (Royal Armed Forces)'],df:['Noussair Mazraoui (Manchester United)','Anass Salah-Eddine (PSV)','Youssef Belammari (Al Ahly)','Nayef Aguerd (Marseille)','Chadi Riad (Crystal Palace)','Issa Diop (West Ham)','Redouane Halhal (KV Mechelen)','Achraf Hakimi (PSG)','Zakaria El Ouahdi (Genk)'],mf:['Samir El Mourabet (Strasbourg)','Ayyoub Bouaddi (Lille)','Neil El Aynaoui (Roma)','Sofyan Amrabat (Real Betis)','Azzedine Ounahi (Girona)','Bilal El Khannouss (Stuttgart)','Ismael Saibari (PSV)'],fw:['Abdessamad Ezzalzouli (Real Betis)','Chemsdine Talbi (Sunderland)','Soufiane Rahimi (Al Ain)','Ayoub El Kaabi (Olympiacos)','Brahim Díaz (Real Madrid)','Yassine Gessime (Strasbourg)','Ayoub Amaimouni (Eintracht Frankfurt)']}},
+'Belgium':{r:9,m:'Rudi Garcia',a:14,b:'3rd place (2018)',l:'2022: Group stage',f:[{d:'2026-03-26',o:'France',s:'2-2',ha:'H',c:'Friendly'},{d:'2026-03-23',o:'Ukraine',s:'3-1',ha:'H',c:'Nations Lg PO'},{d:'2025-11-19',o:'Israel',s:'1-0',ha:'N',c:'Nations Lg'},{d:'2025-11-14',o:'Italy',s:'0-1',ha:'H',c:'Nations Lg'},{d:'2025-10-14',o:'France',s:'1-2',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Thibaut Courtois (Real Madrid)','Senne Lammens (Manchester United)','Mike Penders (Strasbourg)'],df:['Timothy Castagne (Fulham)','Zeno Debast (Sporting CP)','Maxim De Cuyper (Brighton)','Koni De Winter (AC Milan)','Brandon Mechele (Club Brugge)','Thomas Meunier (Lille)','Nathan Ngoy (Lille)','Joaquin Seys (Club Brugge)','Arthur Theate (Eintracht Frankfurt)'],mf:['Kevin De Bruyne (Napoli)','Amadou Onana (Aston Villa)','Nicolas Raskin (Rangers)','Youri Tielemans (Aston Villa)','Hans Vanaken (Club Brugge)','Axel Witsel (Girona)'],fw:['Charles De Ketelaere (Atalanta)','Jérémy Doku (Manchester City)','Matias Fernandez-Pardo (Lille)','Romelu Lukaku (Napoli)','Dodi Lukebakio (Benfica)','Diego Moreira (Strasbourg)','Alexis Saelemaekers (AC Milan)','Leandro Trossard (Arsenal)']}},
+'Germany':{r:10,m:'Julian Nagelsmann',a:20,b:'Champions (1954, 1974, 1990, 2014)',l:'2022: Group stage',f:[{d:'2026-03-26',o:'Italy',s:'3-3',ha:'H',c:'Nations Lg QF'},{d:'2026-03-23',o:'Italy',s:'1-2',ha:'A',c:'Nations Lg QF'},{d:'2025-11-19',o:'Hungary',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-11-16',o:'Bosnia',s:'7-0',ha:'A',c:'Nations Lg'},{d:'2025-10-14',o:'Netherlands',s:'0-1',ha:'H',c:'Nations Lg'}],sq:{s:'CONF',gk:['Oliver Baumann (Hoffenheim)','Manuel Neuer (Bayern Munich)','Alexander Nübel (Stuttgart)'],df:['Waldemar Anton (Borussia Dortmund)','Nathaniel Brown (Eintracht Frankfurt)','David Raum (RB Leipzig)','Antonio Rüdiger (Real Madrid)','Nico Schlotterbeck (Borussia Dortmund)','Jonathan Tah (Bayern Munich)','Malick Thiaw (Newcastle)'],mf:['Pascal Groß (Brighton)','Joshua Kimmich (Bayern Munich)','Felix Nmecha (Borussia Dortmund)','Aleksandar Pavlović (Bayern Munich)','Angelo Stiller (Stuttgart)','Leon Goretzka (Bayern Munich)','Florian Wirtz (Liverpool)','Jamie Leweling (Stuttgart)'],fw:['Maximilian Beier (Borussia Dortmund)','Kai Havertz (Arsenal)','Lennart Karl (Bayern Munich)','Jamal Musiala (Bayern Munich)','Leroy Sané (Galatasaray)','Deniz Undav (Stuttgart)','Nick Woltemade (Newcastle)']}},
+'Croatia':{r:11,m:'Zlatko Dalić',a:6,b:'Runners-up (2018)',l:'2022: 3rd place (beat Morocco 2-1)',f:[{d:'2026-03-26',o:'France',s:'0-2',ha:'A',c:'Friendly'},{d:'2026-03-23',o:'Cyprus',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-11-18',o:'Portugal',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Scotland',s:'1-0',ha:'A',c:'Nations Lg'},{d:'2025-10-15',o:'Poland',s:'3-3',ha:'A',c:'Nations Lg'}],sq:{s:'TBA'}},
+'Colombia':{r:13,m:'Néstor Lorenzo',a:7,b:'Quarter-finals (2014)',l:'2018: Round of 16',f:[{d:'2026-03-25',o:'Paraguay',s:'2-2',ha:'A',c:'WCQ'},{d:'2026-03-21',o:'Brazil',s:'2-2',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'Ecuador',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Uruguay',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Chile',s:'1-1',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'Senegal':{r:14,m:'Pape Thiaw',a:4,b:'Quarter-finals (2002)',l:'2022: Round of 16 (lost 3-0 to England)',f:[{d:'2026-03-25',o:'Togo',s:'2-0',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Mauritania',s:'1-0',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Mozambique',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'South Sudan',s:'4-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Togo',s:'2-0',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Édouard Mendy (Al-Ahli)','Mory Diaw (Le Havre)','Yehvann Diouf (Nice)'],df:['Krépin Diatta (Monaco)','Antoine Mendy (Nice)','Kalidou Koulibaly (Al-Hilal)','El Hadji Malick Diouf (West Ham)','Mamadou Sarr (Chelsea)','Moussa Niakhaté (Lyon)','Moustapha Mbow (Paris FC)','Abdoulaye Seck (Maccabi Haifa)','Ismaïl Jakobs (Galatasaray)','Ilay Camara (Anderlecht)'],mf:['Idrissa Gana Gueye (Everton)','Pape Gueye (Villarreal)','Lamine Camara (Monaco)','Habib Diarra (Sunderland)','Pathé Ciss (Rayo Vallecano)','Pape Matar Sarr (Tottenham)','Bara Sapoko Ndiaye (Bayern Munich)'],fw:['Sadio Mané (Al-Nassr)','Ismaïla Sarr (Crystal Palace)','Iliman Ndiaye (Everton)','Assane Diao (Como)','Ibrahim Mbaye (PSG)','Nicolas Jackson (Chelsea)','Bamba Dieng (Lorient)','Chérif Ndiaye (Samsunspor)']}},
+'Mexico':{r:15,m:'Javier Aguirre',a:17,b:'Quarter-finals (1970, 1986)',l:'2022: Group stage',f:[{d:'2026-03-28',o:'USA',s:'1-2',ha:'A',c:'Friendly'},{d:'2026-03-25',o:'Canada',s:'2-1',ha:'H',c:'Friendly'},{d:'2025-11-19',o:'Honduras',s:'4-0',ha:'H',c:'CONCACAF'},{d:'2025-11-15',o:'Honduras',s:'0-2',ha:'A',c:'CONCACAF'},{d:'2025-10-15',o:'Ecuador',s:'1-0',ha:'H',c:'Friendly'}],sq:{s:'PREL',gk:['Alex Padilla (Athletic Club)','Antonio Rodríguez (Tijuana)','Carlos Acevedo (Santos Laguna)','Guillermo Ochoa (AEL Limassol)','Raúl Rangel (Chivas)'],df:['Bryan González (Chivas)','César Montes (Lokomotiv Moscow)','Edson Álvarez (Fenerbahçe)','Jesús Angulo (Tigres)','Jesús Gallardo (Toluca)','Johan Vásquez (Genoa)','Jorge Sánchez (PAOK)','Julián Araujo (Celtic)','Mateo Chávez (AZ Alkmaar)','Israel Reyes (América)','Ramón Juárez (América)'],mf:['Álvaro Fidalgo (Real Betis)','Carlos Rodríguez (Cruz Azul)','Erik Lira (Cruz Azul)','Gilberto Mora (Tijuana)','Luis Chávez (Dinamo Moscow)','Luis Romo (Chivas)','Marcel Ruiz (Toluca)','Obed Vargas (Atlético Madrid)','Orbelín Pineda (AEK Athens)','Erick Sánchez (América)'],fw:['Alexis Vega (Toluca)','Raúl Jiménez (Fulham)','Santiago Giménez (AC Milan)','Julián Quiñones (Al-Qadsiah)','Germán Berterame (Inter Miami)','César Huerta (Anderlecht)','Roberto Alvarado (Chivas)']}},
+'USA':{r:16,m:'Mauricio Pochettino',a:11,b:'3rd place (1930)',l:'2022: Round of 16 (lost 3-1 to Netherlands)',f:[{d:'2026-03-28',o:'Mexico',s:'2-1',ha:'H',c:'Friendly'},{d:'2026-03-23',o:'Costa Rica',s:'3-1',ha:'A',c:'Friendly'},{d:'2025-11-18',o:'Jamaica',s:'4-2',ha:'H',c:'Nations Lg'},{d:'2025-11-14',o:'Jamaica',s:'1-1',ha:'A',c:'Nations Lg'},{d:'2025-10-14',o:'Panama',s:'2-0',ha:'H',c:'Friendly'}],sq:{s:'CONF',gk:['Chris Brady (Chicago Fire)','Matt Freese (NYCFC)','Matt Turner (New England)'],df:['Max Arfsten (Columbus Crew)','Sergiño Dest (PSV)','Alex Freeman (Villarreal)','Mark McKenzie (Toulouse)','Tim Ream (Charlotte FC)','Chris Richards (Crystal Palace)','Antonee Robinson (Fulham)','Miles Robinson (Cincinnati)','Joe Scally (Mönchengladbach)','Auston Trusty (Celtic)'],mf:['Tyler Adams (Bournemouth)','Sebastian Berhalter (Vancouver)','Weston McKennie (Juventus)','Gio Reyna (Mönchengladbach)','Cristian Roldan (Seattle)','Malik Tillman (Bayer Leverkusen)'],fw:['Brenden Aaronson (Leeds)','Folarin Balogun (Monaco)','Ricardo Pepi (PSV)','Christian Pulisic (AC Milan)','Tim Weah (Marseille)','Haji Wright (Coventry)','Alejandro Zendejas (Club América)']}},
+'Uruguay':{r:17,m:'Marcelo Bielsa',a:14,b:'Champions (1930, 1950)',l:'2022: Group stage',f:[{d:'2026-03-25',o:'Bolivia',s:'2-0',ha:'H',c:'WCQ'},{d:'2026-03-21',o:'Argentina',s:'0-1',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Brazil',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Colombia',s:'1-2',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Ecuador',s:'0-0',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'Japan':{r:18,m:'Hajime Moriyasu',a:7,b:'Round of 16 (2002, 2010, 2018, 2022)',l:'2022: Round of 16 (lost on pens to Croatia)',f:[{d:'2026-03-25',o:'Saudi Arabia',s:'0-0',ha:'A',c:'WCQ'},{d:'2026-03-20',o:'Bahrain',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'China',s:'3-1',ha:'A',c:'WCQ'},{d:'2025-11-15',o:'Indonesia',s:'4-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Australia',s:'1-1',ha:'A',c:'WCQ'}],sq:{s:'CONF',gk:['Tomoki Hayakawa (Kashima)','Keisuke Osako (Sanfrecce Hiroshima)','Aya Suzuka (Parma)'],df:['Yuto Nagatomo (FC Tokyo)','Shōgo Taniguchi (Sint-Truiden)','Ko Itakura (Ajax)','Tsuyoshi Watanabe (Feyenoord)','Takehiro Tomiyasu (Ajax)','Hiroki Itō (Bayern Munich)','Ayumu Seko (Le Havre)','Yukinari Sugawara (Werder Bremen)','Junnosuke Suzuki (Copenhagen)'],mf:['Wataru Endō (Liverpool)','Junya Itō (Genk)','Daichi Kamada (Crystal Palace)','Kōki Ogawa (NEC Nijmegen)','Daizen Maeda (Celtic)','Ritsu Doan (Eintracht Frankfurt)','Ao Tanaka (Leeds)','Kaishu Sano (Mainz)','Takefusa Kubo (Real Sociedad)'],fw:['Ayase Ueda (Feyenoord)','Keito Nakamura (Reims)','Itō Suzuki (Freiburg)','Kento Shiode (Wolfsburg)','Keisuke Gotō (Sint-Truiden)']}},
+'Switzerland':{r:19,m:'Murat Yakin',a:12,b:'Quarter-finals (1934, 1938, 1954)',l:'2022: Round of 16 (lost 6-1 to Portugal)',f:[{d:'2026-03-26',o:'Northern Ireland',s:'2-0',ha:'A',c:'Friendly'},{d:'2026-03-23',o:'Luxembourg',s:'4-1',ha:'H',c:'Friendly'},{d:'2025-11-19',o:'Spain',s:'2-3',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Serbia',s:'2-0',ha:'A',c:'Nations Lg'},{d:'2025-10-15',o:'Denmark',s:'2-2',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Marvin Keller (Young Boys)','Gregor Kobel (Borussia Dortmund)','Yvon Mvogo (Lorient)'],df:['Manuel Akanji (Inter Milan)','Aurèle Amenda (Eintracht Frankfurt)','Eray Cömert (Valencia)','Nico Elvedi (Mönchengladbach)','Luca Jaquez (Stuttgart)','Miro Muheim (Hamburg)','Ricardo Rodríguez (Real Betis)','Silvan Widmer (Mainz)'],mf:['Michel Aebischer (Pisa)','Christian Fassnacht (Young Boys)','Remo Freuler (Bologna)','Ardon Jashari (AC Milan)','Johan Manzambi (Freiburg)','Fabian Rieder (Augsburg)','Djibril Sow (Sevilla)','Rúben Vargas (Sevilla)','Granit Xhaka (Sunderland)','Denis Zakaria (Monaco)'],fw:['Zeki Amdouni (Burnley)','Breel Embolo (Rennes)','Cédric Itten (Fortuna Düsseldorf)','Dan Ndoye (Nottingham Forest)','Noah Okafor (Leeds)']}},
+'Iran':{r:21,m:'Amir Ghalenoei',a:7,b:'Group stage (best)',l:'2022: Group stage',f:[{d:'2026-03-25',o:'Qatar',s:'1-0',ha:'H',c:'WCQ'},{d:'2026-03-20',o:'UAE',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'North Korea',s:'3-2',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Kyrgyzstan',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Uzbekistan',s:'0-0',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'Austria':{r:24,m:'Ralf Rangnick',a:8,b:'3rd place (1954)',l:'1998: Group stage',f:[{d:'2026-03-26',o:'Slovenia',s:'2-1',ha:'A',c:'Friendly'},{d:'2026-03-23',o:'Serbia',s:'2-2',ha:'H',c:'Nations Lg PO'},{d:'2025-11-18',o:'Norway',s:'1-1',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Slovenia',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-10-14',o:'Kazakhstan',s:'2-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Alexander Schlager (Red Bull Salzburg)','Florian Wiegele (Viktoria Plzeň)','Patrick Pentz (Brøndby)'],df:['David Affengruber (Elche)','Kevin Danso (Tottenham)','Stefan Posch (Como)','David Alaba (Real Madrid)','Philipp Lienhart (Freiburg)','Phillipp Mwene (Mainz)','Alexander Prass (Hoffenheim)','Marco Friedl (Werder Bremen)','Michael Svoboda (Venezia)'],mf:['Xaver Schlager (RB Leipzig)','Nicolas Seiwald (RB Leipzig)','Marcel Sabitzer (Borussia Dortmund)','Florian Grillitsch (Braga)','Carney Chukwuemeka (Borussia Dortmund)','Romano Schmid (Werder Bremen)','Christoph Baumgartner (Hoffenheim)','Konrad Laimer (Bayern Munich)','Patrick Wimmer (Wolfsburg)','Paul Wanner (PSV)','Alessandro Schöpf (Wolfsberger)'],fw:['Marko Arnautović (Red Star Belgrade)','Michael Gregoritsch (Brøndby)','Sasa Kalajdžić (Wolves)']}},
+'South Korea':{r:25,m:'Hong Myung-bo',a:11,b:'4th place (2002)',l:'2022: Round of 16 (lost 4-1 to Brazil)',f:[{d:'2026-03-25',o:'Oman',s:'3-1',ha:'A',c:'WCQ'},{d:'2026-03-20',o:'Jordan',s:'1-1',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Kuwait',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Palestine',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Iraq',s:'3-2',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Jo Hyeon-woo (Ulsan)','Kim Seung-gyu (FC Tokyo)','Song Bum-keun (Jeonbuk)'],df:['Kim Moon-hwan (Daejeon)','Kim Min-jae (Bayern Munich)','Kim Tae-hyon (Kashima)','Park Jin-seob (Zhejiang)','Seol Young-woo (Red Star Belgrade)','Jens Castrop (Mönchengladbach)','Lee Ki-hyuk (Gangwon)','Lee Tae-seok (Austria Wien)','Lee Han-beom (Midtjylland)','Cho Yu-min (Sharjah)'],mf:['Kim Jin-gyu (Jeonbuk)','Bae Jun-ho (Stoke City)','Paik Seung-ho (Birmingham)','Yang Hyun-jun (Celtic)','Eom Ji-sung (Swansea)','Lee Kang-in (PSG)','Lee Dong-gyeong (Ulsan)','Lee Jae-sung (Mainz)','Hwang In-beom (Feyenoord)','Hwang Hee-chan (Wolves)'],fw:['Son Heung-min (LAFC)','Oh Hyeon-gyu (Beşiktaş)','Cho Gue-sung (Midtjylland)']}},
+'Ecuador':{r:23,m:'Sebastián Beccacece',a:4,b:'Round of 16 (2006)',l:'2022: Group stage',f:[{d:'2026-03-25',o:'Venezuela',s:'2-1',ha:'A',c:'WCQ'},{d:'2026-03-21',o:'Chile',s:'2-1',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Colombia',s:'0-1',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Bolivia',s:'2-1',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Uruguay',s:'0-0',ha:'H',c:'WCQ'}],sq:{s:'TBA'}},
+'Australia':{r:27,m:'Tony Popovic',a:6,b:'Round of 16 (2006, 2022)',l:'2022: Round of 16 (lost 2-1 to Argentina)',f:[{d:'2026-03-25',o:'Indonesia',s:'2-1',ha:'A',c:'WCQ'},{d:'2026-03-20',o:'China',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Saudi Arabia',s:'1-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Bahrain',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Japan',s:'1-1',ha:'H',c:'WCQ'}],sq:{s:'TBA'}},
+'Turkey':{r:22,m:'Vincenzo Montella',a:2,b:'3rd place (2002)',l:'2002: 3rd place',f:[{d:'2026-03-25',o:'Hungary',s:'3-1',ha:'H',c:'Nations Lg PO'},{d:'2026-03-22',o:'Hungary',s:'0-0',ha:'A',c:'Nations Lg PO'},{d:'2025-11-19',o:'Wales',s:'0-0',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Iceland',s:'2-0',ha:'A',c:'Nations Lg'},{d:'2025-10-15',o:'Montenegro',s:'1-1',ha:'H',c:'Nations Lg'}],sq:{s:'TBA'}},
+'Canada':{r:30,m:'Jesse Marsch',a:3,b:'Group stage',l:'2022: Group stage',f:[{d:'2026-03-28',o:'USA',s:'1-2',ha:'A',c:'Friendly'},{d:'2026-03-25',o:'Mexico',s:'1-2',ha:'A',c:'Friendly'},{d:'2025-11-19',o:'Suriname',s:'3-0',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Jamaica',s:'2-1',ha:'H',c:'Nations Lg'},{d:'2025-10-14',o:'Panama',s:'0-0',ha:'A',c:'Nations Lg'}],sq:{s:'TBA'}},
+'Sweden':{r:38,m:'Graham Potter',a:12,b:'Runners-up (1958)',l:'2018: Quarter-finals',f:[{d:'2026-03-26',o:'Northern Ireland',s:'1-1',ha:'H',c:'Friendly'},{d:'2026-03-23',o:'Luxembourg',s:'2-0',ha:'A',c:'Friendly'},{d:'2025-11-19',o:'Slovakia',s:'2-1',ha:'A',c:'Nations Lg'},{d:'2025-11-15',o:'Azerbaijan',s:'3-1',ha:'H',c:'Nations Lg'},{d:'2025-10-15',o:'Estonia',s:'3-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Viktor Johansson (Stoke City)','Kristoffer Nordfeldt (AIK)','Jacob Widell Zetterström (Derby County)'],df:['Hjalmar Ekdal (Burnley)','Gabriel Gudmundsson (Leeds)','Isak Hien (Atalanta)','Emil Holm (Juventus)','Gustaf Lagerbielke (Braga)','Victor Lindelöf (Aston Villa)','Erik Smith (St Pauli)','Carl Starfelt (Celta Vigo)','Elliot Stroud (Mjällby)','Daniel Svensson (Borussia Dortmund)'],mf:['Taha Ali (Malmö)','Yasin Ayari (Brighton)','Lucas Bergvall (Tottenham)','Jesper Karlström (Udinese)','Ken Sema (Pafos)','Mattias Svanberg (Wolfsburg)','Besfort Zeneli (Union Saint-Gilloise)'],fw:['Alexander Bernhardsson (Holstein Kiel)','Anthony Elanga (Newcastle)','Viktor Gyökeres (Arsenal)','Alexander Isak (Liverpool)','Gustaf Nilsson (Club Brugge)','Benjamin Nygren (Celtic)']}},
+'Panama':{r:33,m:'Thomas Christiansen',a:2,b:'Group stage',l:'2018: Group stage',f:[{d:'2026-03-25',o:'Guatemala',s:'1-0',ha:'A',c:'Friendly'},{d:'2026-03-21',o:'Costa Rica',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-11-19',o:'Honduras',s:'3-0',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Belize',s:'5-0',ha:'A',c:'WCQ'},{d:'2025-10-14',o:'Canada',s:'0-0',ha:'H',c:'Nations Lg'}],sq:{s:'TBA'}},
+'Norway':{r:31,m:'Ståle Solbakken',a:3,b:'Round of 16 (1998)',l:'1998: Round of 16',f:[{d:'2026-03-26',o:'Israel',s:'4-2',ha:'A',c:'WCQ'},{d:'2026-03-23',o:'Moldova',s:'5-0',ha:'H',c:'WCQ'},{d:'2025-11-18',o:'Austria',s:'1-1',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Slovenia',s:'2-1',ha:'A',c:'Nations Lg'},{d:'2025-10-14',o:'Kazakhstan',s:'5-0',ha:'H',c:'Nations Lg'}],sq:{s:'CONF',gk:['Ørjan Nyland (Sevilla)','Egil Selvik (Watford)','Sander Tangvik (Hamburger SV)'],df:['Julian Ryerson (Borussia Dortmund)','Marcus Holmgren Pedersen (Torino)','David Møller Wolfe (Wolves)','Fredrik Bjørkan (Bodø/Glimt)','Kristoffer Ajer (Brentford)','Torbjørn Heggem (Bologna)','Leo Skiri Østigård (Genoa)','Sondre Langås (Derby County)','Henrik Falchener (Viking)'],mf:['Martin Ødegaard (Arsenal)','Sander Berge (Fulham)','Fredrik Aursnes (Benfica)','Patrick Berg (Bodø/Glimt)','Kristian Thorstvedt (Sassuolo)','Morten Thorsby (Cremonese)','Thelo Aasgaard (Rangers)'],fw:['Erling Haaland (Manchester City)','Alexander Sørloth (Atlético Madrid)','Jørgen Strand Larsen (Crystal Palace)','Antonio Nusa (RB Leipzig)','Oscar Bobb (Fulham)','Andreas Schjelderup (Benfica)','Jens Petter Hauge (Bodø/Glimt)']}},
+'Algeria':{r:28,m:'Vladimir Petković',a:4,b:'Round of 16 (2014)',l:'2014: Round of 16',f:[{d:'2026-03-25',o:'Mozambique',s:'2-0',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Botswana',s:'3-1',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Mozambique',s:'5-1',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Equatorial Guinea',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Uganda',s:'1-2',ha:'A',c:'AFCON Q'}],sq:{s:'TBA'}},
+'Egypt':{r:29,m:'Hossam Hassan',a:3,b:'Group stage',l:'2018: Group stage',f:[{d:'2026-03-25',o:'Tanzania',s:'1-0',ha:'H',c:'AFCON Q'},{d:'2026-03-22',o:'Niger',s:'1-1',ha:'A',c:'AFCON Q'},{d:'2025-11-18',o:'Djibouti',s:'4-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Cape Verde',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Burkina Faso',s:'1-1',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Mohamed El Shenawy (Al Ahly)','Mostafa Shobeir (Al Ahly)','El Mahdi Soliman (Zamalek)','Mohamed Alaa (El Gouna)'],df:['Mohamed Hany (Al Ahly)','Tarek Alaa (Zed)','Hamdy Fathy (Al Wakrah)','Rami Rabia (Al Ain)','Yasser Ibrahim (Al Ahly)','Hossam Abdelmaguid (Zamalek)','Mohamed Abdelmonem (Nice)','Ahmed Fatouh (Zamalek)','Karim Hafez (Pyramids)'],mf:['Marwan Ateya (Al Ahly)','Mohanad Lasheen (Pyramids)','Nabil Emad (Al Najma)','Mahmoud Saber (Zed)','Ahmed Zizo (Al Ahly)','Emam Ashour (Al Ahly)','Mostafa Ziko (Pyramids)','Mahmoud Trezeguet (Al Ahly)','Ibrahim Adel (Nordsjælland)','Haissem Hassan (Real Oviedo)'],fw:['Omar Marmoush (Manchester City)','Mohamed Salah (Liverpool)','Aqtay Abdallah (Enppi)','Hamza Abdelkarim (Barcelona)']}},
+'Czechia':{r:41,m:'Miroslav Koubek',a:10,b:'Runners-up (1934, 1962 as Czechoslovakia)',l:'2006: Group stage',f:[{d:'2026-03-26',o:'Faroe Islands',s:'2-1',ha:'A',c:'WCQ'},{d:'2026-03-23',o:'Montenegro',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-11-18',o:'Ukraine',s:'0-2',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Albania',s:'1-1',ha:'A',c:'Nations Lg'},{d:'2025-10-15',o:'Georgia',s:'2-1',ha:'H',c:'Nations Lg'}],sq:{s:'PREL',gk:['Lukáš Horníček (Braga)','Antonín Kinský (Tottenham)','Matěj Kovář (PSV)','Jindřich Staněk (Slavia Prague)'],df:['Vladimír Coufal (Hoffenheim)','Robin Hranáč (Hoffenheim)','Ladislav Krejčí (Wolves)','Martin Vitík (Bologna)','David Zima (Slavia Prague)','David Jurásek (Slavia Prague)','Tomáš Holeš (Slavia Prague)'],mf:['Tomáš Souček (West Ham)','Lukáš Provod (Slavia Prague)','Pavel Šulc (Lyon)','Adam Karabec (Lyon)','Michal Sadílek (Slavia Prague)','Pavel Bucha (FC Cincinnati)','Lukáš Červ (Viktoria Plzeň)'],fw:['Patrik Schick (Bayer Leverkusen)','Adam Hložek (Hoffenheim)','Tomáš Chorý (Slavia Prague)','Mojmír Chytil (Slavia Prague)','Jan Kuchta (Sparta Prague)','Václav Sejk (Sigma Olomouc)']}},
+'Scotland':{r:43,m:'Steve Clarke',a:9,b:'Group stage',l:'1998: Group stage',f:[{d:'2026-03-28',o:'England',s:'1-3',ha:'A',c:'Friendly'},{d:'2026-03-25',o:'Iceland',s:'1-0',ha:'H',c:'Friendly'},{d:'2025-11-18',o:'Greece',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Belarus',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Denmark',s:'2-2',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Craig Gordon (Hearts)','Angus Gunn (Nottingham Forest)','Liam Kelly (Rangers)'],df:['Grant Hanley (Hibernian)','Jack Hendry (Al Ettifaq)','Aaron Hickey (Brentford)','Dom Hyam (Wrexham)','Scott McKenna (Dinamo Zagreb)','Nathan Patterson (Everton)','Anthony Ralston (Celtic)','Andy Robertson (Liverpool)','John Souttar (Rangers)','Kieran Tierney (Celtic)'],mf:['Ryan Christie (Bournemouth)','Findlay Curtis (Kilmarnock)','Lewis Ferguson (Bologna)','Ben Gannon-Doak (Bournemouth)','Billy Gilmour (Napoli)','John McGinn (Aston Villa)','Kenny McLean (Norwich)','Scott McTominay (Napoli)'],fw:['Che Adams (Torino)','Lyndon Dykes (Charlton Athletic)','George Hirst (Ipswich)','Lawrence Shankland (Hearts)','Ross Stewart (Southampton)']}},
+'Ivory Coast':{r:34,m:'Emerse Faé',a:3,b:'Group stage',l:'2014: Group stage',f:[{d:'2026-03-25',o:'Burundi',s:'2-1',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Seychelles',s:'5-0',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Gabon',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Kenya',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Burundi',s:'1-0',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Yahia Fofana (Çaykur Rizespor)','Mohamed Koné (Charleroi)','Alban Lafont (Panathinaikos)'],df:['Emmanuel Agbadou (Beşiktaş)','Clément Akpa (Auxerre)','Ousmane Diomande (Sporting CP)','Guela Doué (Strasbourg)','Ghislain Konan (Gil Vicente)','Odilon Kossounou (Atalanta)','Evan Ndicka (Roma)','Wilfried Singo (Galatasaray)'],mf:['Seko Fofana (Porto)','Parfait Guiagon (Charleroi)','Christ Inao Oulaï (Trabzonspor)','Franck Kessié (Al Ahli)','Ibrahim Sangaré (Nottingham Forest)','Jean-Michaël Seri (Maribor)'],fw:['Simon Adingra (Monaco)','Ange-Yoan Bonny (Inter Milan)','Amad Diallo (Manchester United)','Oumar Diakité (Cercle Brugge)','Yan Diomande (RB Leipzig)','Evann Guessand (Crystal Palace)','Nicolas Pépé (Villarreal)','Bazoumana Touré (Hoffenheim)','Elye Wahi (Nice)']}},
+'Tunisia':{r:44,m:'Sabri Lamouchi',a:6,b:'Group stage',l:'2022: Group stage',f:[{d:'2026-03-25',o:'Liberia',s:'1-0',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Madagascar',s:'1-0',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Sao Tome',s:'4-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Equatorial Guinea',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Namibia',s:'3-0',ha:'H',c:'WCQ'}],sq:{s:'CONF',gk:['Sabri Ben Hessen (Étoile Sahel)','Abdelmouhib Chamakh (Club Africain)','Aymen Dahman (CS Sfaxien)'],df:['Ali Abdi (Nice)','Adem Arous (Kasımpaşa)','Mohamed Amine Ben Hamida (Espérance)','Dylan Bronn (Servette)','Raed Chikhaoui (US Monastir)','Moutaz Neffati (Norrköping)','Omar Rekik (Maribor)','Montassar Talbi (Lorient)','Yan Valery (Young Boys Bern)'],mf:['Mortadha Ben Ouanes (Kasımpaşa)','Anis Ben Slimane (Norwich)','Ismaël Gharbi (Augsburg)','Rani Khedira (Union Berlin)','Mohamed Hadj Mahmoud (Lugano)','Hannibal Mejbri (Burnley)','Ellyes Skhiri (Eintracht Frankfurt)'],fw:['Elias Achouri (Copenhagen)','Khalil Ayari (PSG)','Firas Chaouat (Club Africain)','Rayan Elloumi (Vancouver Whitecaps)','Hazem Mastouri (Dynamo Makhachkala)','Elias Saad (Hannover 96)','Sebastian Tounekti (Celtic)']}},
+'Qatar':{r:55,m:'Julen Lopetegui',a:2,b:'Group stage',l:'2022: Group stage (host)',f:[{d:'2026-03-25',o:'Iran',s:'0-1',ha:'A',c:'WCQ'},{d:'2026-03-20',o:'Kyrgyzstan',s:'2-1',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'UAE',s:'1-1',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'North Korea',s:'2-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Uzbekistan',s:'1-3',ha:'A',c:'WCQ'}],sq:{s:'PREL',gk:['Meshaal Barsham (Al Sadd)','Salah Zakaria (Al Duhail)','Shehab Elleithy (Al Shahania)','Mahmoud Abunada (Al Rayyan)'],df:['Boualem Khoukhi (Al Sadd)','Pedro Miguel (Al Sadd)','Bassam Al-Rawi (Al Duhail)','Tarek Salman (Al Sadd)','Sultan Al Brake (Al Duhail)','Lucas Mendes (Al Wakrah)'],mf:['Karim Boudiaf (Al Duhail)','Assim Madibo (Al Wakrah)','Abdulaziz Hatem (Al Rayyan)','Ahmed Fathi (Al Arabi)','Mohammed Waad (Al Shamal)','Homam Al-Amin (Cultural Leonesa)'],fw:['Akram Afif (Al Sadd)','Almoez Ali (Al Duhail)','Edmílson Junior (Al Duhail)','Hassan Al-Haydos (Al Sadd)','Mohammed Muntari (Al Gharafa)','Yusuf Abdurisag (Al Wakrah)']}},
+'Paraguay':{r:40,m:'Gustavo Alfaro',a:9,b:'Quarter-finals (2010)',l:'2010: Quarter-finals',f:[{d:'2026-03-25',o:'Colombia',s:'2-2',ha:'H',c:'WCQ'},{d:'2026-03-21',o:'Chile',s:'1-0',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'Argentina',s:'1-2',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Venezuela',s:'0-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Bolivia',s:'2-2',ha:'H',c:'WCQ'}],sq:{s:'PREL',gk:['Roberto Fernández (Cerro Porteño)','Orlando Gill (San Lorenzo)','Gastón Olveira (Olimpia)'],df:['Gustavo Gómez (Palmeiras)','Junior Alonso (Krasnodar)','Omar Alderete (Hertha Berlin)','Fabián Balbuena (Internacional)','Ronaldo Martínez (Hatayspor)','Juan Cáceres (Argentinos Juniors)'],mf:['Damián Bobadilla (Botafogo)','Andrés Cubas (Marseille)','Gastón Giménez (Independiente)','Mathías Villasanti (Grêmio)','Diego Gómez (Brighton)','Hernesto Caballero (Cerro Porteño)'],fw:['Antonio Sanabria (Torino)','Miguel Almirón (Atlanta United)','Julio Enciso (Strasbourg)','Adam Bareiro (San Lorenzo)','Ramón Sosa (Nottingham Forest)']}},
+'DR Congo':{r:46,m:'Sébastien Desabre',a:1,b:'Group stage (1974 as Zaire)',l:'1974 (as Zaire)',f:[{d:'2026-03-25',o:'Mauritania',s:'2-1',ha:'H',c:'AFCON Q'},{d:'2026-03-22',o:'Sudan',s:'1-1',ha:'A',c:'AFCON Q'},{d:'2025-11-18',o:'Senegal',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Mauritania',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Togo',s:'2-1',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'Saudi Arabia':{r:61,m:'Georgios Donis',a:7,b:'Round of 16 (1994)',l:'2022: Group stage (beat Argentina 2-1)',f:[{d:'2026-03-25',o:'Japan',s:'0-0',ha:'H',c:'WCQ'},{d:'2026-03-20',o:'China',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Australia',s:'0-1',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Indonesia',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Bahrain',s:'0-0',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'Uzbekistan':{r:50,m:'Timur Kapadze',a:1,b:'First WC appearance',l:'First-ever appearance',f:[{d:'2026-03-25',o:'UAE',s:'1-0',ha:'H',c:'WCQ'},{d:'2026-03-20',o:'Kyrgyzstan',s:'3-1',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'Iran',s:'0-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Qatar',s:'3-1',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'North Korea',s:'1-1',ha:'A',c:'WCQ'}],sq:{s:'TBA'}},
+'South Africa':{r:60,m:'Hugo Broos',a:4,b:'Group stage',l:'2010: Group stage (host)',f:[{d:'2026-03-25',o:'Lesotho',s:'2-0',ha:'H',c:'WCQ'},{d:'2026-03-22',o:'Benin',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-11-18',o:'Rwanda',s:'2-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Congo',s:'5-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Zimbabwe',s:'3-3',ha:'H',c:'WCQ'}],sq:{s:'TBA'}},
+'Iraq':{r:57,m:'Graham Arnold',a:1,b:'Group stage (1986)',l:'1986: Group stage',f:[{d:'2026-03-25',o:'Palestine',s:'2-1',ha:'H',c:'WCQ'},{d:'2026-03-20',o:'Kuwait',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'South Korea',s:'2-3',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Jordan',s:'0-1',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Oman',s:'2-1',ha:'H',c:'WCQ'}],sq:{s:'TBA'}},
+'Jordan':{r:63,m:'Jamal Sellami',a:1,b:'First WC appearance',l:'First-ever appearance',f:[{d:'2026-03-25',o:'South Korea',s:'1-1',ha:'A',c:'WCQ'},{d:'2026-03-20',o:'Palestine',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Iraq',s:'1-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Oman',s:'1-1',ha:'A',c:'WCQ'},{d:'2025-10-15',o:'Kuwait',s:'2-1',ha:'H',c:'WCQ'}],sq:{s:'TBA'}},
+'Bosnia-Herzegovina':{r:65,m:'Sergej Barbarez',a:1,b:'Group stage (2014)',l:'2014: Group stage',f:[{d:'2026-03-25',o:'Cyprus',s:'2-1',ha:'A',c:'WCQ'},{d:'2026-03-22',o:'San Marino',s:'4-0',ha:'H',c:'WCQ'},{d:'2025-11-18',o:'Germany',s:'0-7',ha:'H',c:'Nations Lg'},{d:'2025-11-15',o:'Netherlands',s:'1-1',ha:'A',c:'Nations Lg'},{d:'2025-10-15',o:'Hungary',s:'2-0',ha:'A',c:'Nations Lg'}],sq:{s:'CONF',gk:['Nikola Vasilj (St Pauli)','Martin Zlomislić (Rijeka)','Osman Hadžikić (Slaven Belupo)'],df:['Sead Kolašinac (Atalanta)','Amar Dedić (Benfica)','Nihad Mujakić (Gaziantep)','Nikola Katić (Schalke 04)','Tarik Muharemović (Sassuolo)','Stjepan Radeljić (Rijeka)','Dennis Hadžikadunić (Sampdoria)','Nidal Celik (Lens)'],mf:['Amir Hadžiahmetović (Hull City)','Ivan Šunjić (Pafos)','Ivan Bašić (Astana)','Dženis Burnić (Karlsruher)','Ermin Mahmić (Slovan Liberec)','Benjamin Tahirović (Brøndby)','Amar Memić (Viktoria Plzeň)','Armin Gigović (Young Boys)','Kerim Alajbegović (RB Salzburg)','Esmir Bajraktarević (PSV)'],fw:['Ermedin Demirović (Stuttgart)','Jovo Lukić (Universitatea Cluj)','Samed Bazdar (Jagiellonia)','Haris Tabaković (Mönchengladbach)','Edin Džeko (Schalke 04)']}},
+'Cape Verde':{r:69,m:'Pedro Leitão Brito (Bubista)',a:1,b:'First WC appearance',l:'First-ever appearance',f:[{d:'2026-03-25',o:'Eswatini',s:'3-0',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Mauritius',s:'2-0',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Eswatini',s:'3-0',ha:'H',c:'WCQ'},{d:'2025-11-14',o:'Cameroon',s:'1-0',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Libya',s:'1-0',ha:'A',c:'WCQ'}],sq:{s:'CONF',gk:['Vozinha (Chaves)','Márcio Rosa (Montana)','CJ dos Santos (San Diego)'],df:['Stopira (Torreense)','Roberto Lopes (Shamrock Rovers)','João Paulo (FCSB)','Diney (Al Bataeh)','Logan Costa (Villarreal)','Steven Moreira (Columbus Crew)','Wagner Pina (Trabzonspor)','Sidny Lopes Cabral (Benfica)','Kelvin Pires (SJK)'],mf:['Jamiro Monteiro (PEC Zwolle)','Kevin Pina (Krasnodar)','Deroy Duarte (Ludogorets)','Telmo Arcanjo (Vitória Guimarães)','Laros Duarte (Puskás Akadémia)','Yannick Semedo (Farense)'],fw:['Ryan Mendes (Iğdır)','Garry Rodrigues (Apollon Limassol)','Willy Semedo (Omonia)','Jovane Cabral (Estrela Amadora)','Gilson Tavares (Akron Tolyatti)','Dailon Livramento (Casa Pia)','Hélio Varela (Maccabi Tel Aviv)','Nuno da Costa (İstanbul Başakşehir)']}},
+'Ghana':{r:74,m:'Carlos Queiroz',a:5,b:'Quarter-finals (2010)',l:'2022: Group stage',f:[{d:'2026-03-25',o:'Chad',s:'5-0',ha:'A',c:'AFCON Q'},{d:'2026-03-22',o:'Madagascar',s:'1-0',ha:'H',c:'AFCON Q'},{d:'2025-11-18',o:'Comoros',s:'1-0',ha:'A',c:'WCQ'},{d:'2025-11-14',o:'Madagascar',s:'2-1',ha:'H',c:'WCQ'},{d:'2025-10-15',o:'Mali',s:'0-0',ha:'A',c:'WCQ'}],sq:{s:'PREL',gk:['Lawrence Ati-Zigi (St Gallen)','Benjamin Asare (Hearts of Oak)','Joseph Anang (St Patrick\'s)','Solomon Agbasi (Hearts of Oak)','Paul Reverson (Ajax)'],df:['Baba Abdul Rahman (PAOK)','Gideon Mensah (Auxerre)','Marvin Senaya (Auxerre)','Alidu Seidu (Rennes)','Abdul Mumin (Rayo Vallecano)','Jerome Opoku (İstanbul Başakşehir)','Jonas Adjetey (Wolfsburg)','Kojo Oppong Peprah (Nice)','Alexander Djiku (Spartak Moscow)'],mf:['Thomas Partey (Villarreal)','Kwasi Sibo (Real Oviedo)','Augustine Boakye (Saint-Étienne)','Caleb Yirenkyi (Nordsjælland)','Abdul Fatawu Issahaku (Leicester)','Elisha Owusu (Auxerre)','Salis Abdul Samed (Lens)'],fw:['Antoine Semenyo (Manchester City)','Jordan Ayew (Leicester)','Iñaki Williams (Athletic Club)','Kamaldeen Sulemana (Atalanta)','Prince Adu (Viktoria Plzeň)','Ernest Nuamah (Lyon)','Brandon Thomas-Asante (Coventry)','Christopher Bonsu Baah (Al-Qadsiah)']}},
+'Curaçao':{r:82,m:'Dick Advocaat',a:1,b:'First WC appearance',l:'First-ever appearance',f:[{d:'2026-03-25',o:'Trinidad',s:'2-1',ha:'A',c:'WCQ'},{d:'2026-03-22',o:'Jamaica',s:'2-0',ha:'H',c:'WCQ'},{d:'2025-11-19',o:'Bermuda',s:'7-0',ha:'A',c:'WCQ'},{d:'2025-11-15',o:'Honduras',s:'1-1',ha:'H',c:'WCQ'},{d:'2025-10-14',o:'Haiti',s:'2-0',ha:'H',c:'Nations Lg'}],sq:{s:'CONF',gk:['Tyrick Bodak (Telstar)','Trevor Doornbusch (VVV-Venlo)','Eloy Room (Miami FC)'],df:['Riechedly Bazoer (Konyaspor)','Joshua Brenet (Kayserispor)','Roshon Van Eijma (RKC Waalwijk)','Sherel Floranus (PEC Zwolle)','Deveron Fonville (NEC Nijmegen)','Jurien Gaari (Abha Club)','Armando Obispo (PSV)','Shurandy Sambo (Sparta Rotterdam)'],mf:['Juninho Bacuna (Volendam)','Leandro Bacuna (Iğdır)','Livano Comenencia (FC Zürich)','Kevin Felida (Den Bosch)','Ar\'Jany Martha (Rotherham)','Tyrese Noslin (Telstar)','Godfried Roemeratoe (RKC Waalwijk)'],fw:['Jeremy Antonisse (Kifisia)','Tahith Chong (Sheffield United)','Kenji Gorré (Maccabi Haifa)','Sontje Hansen (Middlesbrough)','Gervane Kastaneer (Terengganu)','Brandley Kuwas (Volendam)','Jürgen Locadia (Miami FC)','Jearl Margaritha (Beveren)']}},
+'Haiti':{r:83,m:'Sebastien Migne',a:2,b:'Group stage (1974)',l:'1974: Group stage',f:[{d:'2026-03-25',o:'Curaçao',s:'0-2',ha:'A',c:'Nations Lg'},{d:'2026-03-22',o:'Costa Rica',s:'0-1',ha:'A',c:'WCQ'},{d:'2025-11-19',o:'Honduras',s:'2-2',ha:'H',c:'WCQ'},{d:'2025-11-15',o:'Nicaragua',s:'3-0',ha:'A',c:'WCQ'},{d:'2025-10-14',o:'Guatemala',s:'1-1',ha:'H',c:'Nations Lg'}],sq:{s:'CONF',gk:['Johnny Placide (Bastia)','Alexandre Pierre (Sochaux)','Josué Duverger (Cosmos Koblenz)'],df:['Carlens Arcus (Angers)','Wilguens Pauguain (Zulte Waregem)','Duke Lacroix (Colorado Springs)','Martin Expérience (Nancy)','Jean-Kévin Duverne (KAA Gent)','Ricardo Adé (LDU Quito)','Hannes Delcroix (Lugano)','Keeto Thermoncy (Young Boys Bern)'],mf:['Leverton Pierre (Vizela)','Carl-Fred Sainthe (El Paso Locomotive)','Jean-Jacques Danley (Philadelphia Union)','Jean-Ricner Bellegarde (Wolves)','Pierre Woodenski (Violette)','Dominique Simon (Tatran Prešov)'],fw:['Louicius Deedson (FC Dallas)','Ruben Providence (Almere City)','Josué Casimir (Auxerre)','Derrick Etienne (Toronto FC)','Wilson Isidor (Sunderland)','Duckens Nazon (Esteghlal)','Frantzdy Pierrot (Çaykur Rizespor)','Yassin Fortuné (Vizela)','Lenny Joseph (Ferencváros)']}},
+'New Zealand':{r:85,m:'Darren Bazeley',a:2,b:'Group stage (1982, 2010)',l:'2010: Group stage',f:[{d:'2026-03-25',o:'Tahiti',s:'3-0',ha:'A',c:'OFC Q'},{d:'2026-03-22',o:'Vanuatu',s:'8-0',ha:'H',c:'OFC Q'},{d:'2025-11-18',o:'Fiji',s:'3-0',ha:'H',c:'OFC Q'},{d:'2025-11-14',o:'Solomon Islands',s:'5-0',ha:'A',c:'OFC Q'},{d:'2025-10-15',o:'Tahiti',s:'2-1',ha:'H',c:'OFC Q'}],sq:{s:'CONF',gk:['Max Crocombe (Millwall)','Alex Paulsen (Lechia Gdańsk)','Michael Woud (Auckland FC)'],df:['Tim Payne (Wellington Phoenix)','Francis De Vries (Auckland FC)','Tyler Bindon (Nottingham Forest)','Michael Boxall (Minnesota United)','Liberato Cacace (Wrexham)','Nando Pijnaker (Auckland FC)','Finn Surman (Portland Timbers)','Callan Elliot (Auckland FC)','Tommy Smith (Braintree Town)'],mf:['Joe Bell (Viking FK)','Matt Garbett (Peterborough United)','Marko Stamenic (Swansea City)','Sarpreet Singh (Wellington Phoenix)','Alex Rufer (Wellington Phoenix)','Ryan Thomas (PEC Zwolle)'],fw:['Chris Wood (Nottingham Forest)','Eli Just (Motherwell)','Kosta Barbarouses (Western Sydney Wanderers)','Ben Waine (Port Vale)','Ben Old (Saint-Étienne)','Callum McCowatt (Silkeborg)','Jesse Randall (Auckland FC)','Lachlan Bayliss (Newcastle Jets)']}}
+};
 
 // Standings tracked locally (updated from API)
 const STANDINGS={};
@@ -331,8 +414,7 @@ Object.keys(GROUPS).forEach(g=>{STANDINGS[g]={};GROUPS[g].forEach((t,i)=>STANDIN
 const VENUES=[
   {n:'MetLife Stadium',c:'New York / New Jersey',co:'USA',fl:'🇺🇸',cap:82500,sp:'Final venue',role:'Final, semi-final, group stage'},
   {n:'AT&T Stadium',c:'Dallas',co:'USA',fl:'🇺🇸',cap:80000,role:'Semi-final, group stage'},
-  {n:'SoFi Stadium',c:'Los Angeles',co:'USA',fl:'🇺🇸',cap:70240,role:'Group stage, R32'},
-  {n:'Rose Bowl',c:'Los Angeles',co:'USA',fl:'🇺🇸',cap:88565,role:'Group stage, knockouts'},
+  {n:'SoFi Stadium',c:'Los Angeles',co:'USA',fl:'🇺🇸',cap:70240,role:'All 8 LA matches incl. group stage & R32'},
   {n:'Mercedes-Benz Stadium',c:'Atlanta',co:'USA',fl:'🇺🇸',cap:71000,role:'Group stage, R16'},
   {n:'NRG Stadium',c:'Houston',co:'USA',fl:'🇺🇸',cap:72220,role:'Group stage, R32'},
   {n:'Hard Rock Stadium',c:'Miami',co:'USA',fl:'🇺🇸',cap:65326,role:'Group stage, third-place'},
@@ -342,7 +424,7 @@ const VENUES=[
   {n:'Gillette Stadium',c:'Boston',co:'USA',fl:'🇺🇸',cap:65878,role:'Group stage, quarter-final'},
   {n:'Lincoln Financial Field',c:'Philadelphia',co:'USA',fl:'🇺🇸',cap:67594,role:'Group stage, R16'},
   {n:'Estadio Azteca',c:'Mexico City',co:'Mexico',fl:'🇲🇽',cap:87523,sp:'Opening match',role:'Opener, group stage, R32'},
-  {n:'Estadio Guadalajara',c:'Guadalajara',co:'Mexico',fl:'🇲🇽',cap:48071,role:'Group stage only'},
+  {n:'Estadio Akron',c:'Guadalajara',co:'Mexico',fl:'🇲🇽',cap:48071,role:'Group stage only'},
   {n:'Estadio BBVA',c:'Monterrey',co:'Mexico',fl:'🇲🇽',cap:53500,role:'Group stage, R32'},
   {n:'BMO Field',c:'Toronto',co:'Canada',fl:'🇨🇦',cap:45736,role:'Group stage only'},
   {n:'BC Place',c:'Vancouver',co:'Canada',fl:'🇨🇦',cap:54500,role:'Group stage, R32'}
@@ -392,6 +474,9 @@ function renderFixCard(f){
   const isLive=f.status==='IN_PLAY'||f.status==='LIVE'||f.status==='PAUSED';
   const isDone=f.status==='FINISHED';
   const hasScore=isLive||isDone;
+  const hRank=NATIONS[f.h]?NATIONS[f.h].r:null;
+  const aRank=NATIONS[f.a]?NATIONS[f.a].r:null;
+  const canCal=f.t&&!isDone;
   let scoreOrVs;
   if(hasScore && f.homeScore!==undefined && f.homeScore!==null){
     scoreOrVs=`<div class="score">${f.homeScore}<span class="sep">–</span>${f.awayScore}</div>`;
@@ -411,17 +496,20 @@ function renderFixCard(f){
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
         ${f.note?`<span style="font-size:11px;color:var(--text-dim);">${f.note}</span>`:''}
         ${chBadge(f.ch)}
+        ${canCal?`<button class="cal-btn" data-fix-id="${f.id}" title="Add to calendar" aria-label="Add ${f.h} vs ${f.a} to calendar"><i class="ti ti-calendar-plus" aria-hidden="true" style="font-size:13px;"></i></button>`:''}
       </div>
     </div>
     <div class="match-row">
       <div class="team h">
         <div class="flag">${FLAGS[f.h]||'🏳'}</div>
-        <div class="team-name${f.h===nation&&nation?' bold':''}">${f.h}</div>
+        <button class="team-link team-name${f.h===nation&&nation?' bold':''}" data-nation="${f.h}">${f.h}</button>
+        ${hRank?`<div class="fifa-rank">FIFA <span class="num">#${hRank}</span></div>`:''}
       </div>
       ${scoreOrVs}
       <div class="team a">
         <div class="flag">${FLAGS[f.a]||'🏳'}</div>
-        <div class="team-name${f.a===nation&&nation?' bold':''}">${f.a}</div>
+        <button class="team-link team-name${f.a===nation&&nation?' bold':''}" data-nation="${f.a}">${f.a}</button>
+        ${aRank?`<div class="fifa-rank">FIFA <span class="num">#${aRank}</span></div>`:''}
       </div>
     </div>
     <div class="venue"><i class="ti ti-map-pin" aria-hidden="true"></i> ${f.v}</div>
@@ -534,22 +622,92 @@ function renderVenues(){
 
 function renderJourney(){
   const el=document.getElementById('jc');
-  if(!nation){el.innerHTML='<p style="color:var(--text-dim);padding:1rem 0;">Pick a nation from the dropdown above to see their full journey.</p>';return;}
+  if(!nation){el.innerHTML='<p style="color:var(--text-dim);padding:1rem 0;">Pick a nation from the dropdown above (or click a team name in any fixture) to see their full profile.</p>';return;}
   const gid=natGrp(nation);
   const others=GROUPS[gid].filter(t=>t!==nation);
   const nfx=FX.filter(f=>isNat(f,nation)).sort((a,b)=>a.dt.localeCompare(b.dt));
+  const nd=NATIONS[nation];
+  
+  // ─── Header
   let h=`<div class="journey-hero">
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;">
       <div class="journey-flag">${FLAGS[nation]||'🏳'}</div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="journey-name">${nation}</div>
-        <div style="font-size:13px;color:var(--text-dim);margin-top:3px;">Group ${gid} · 3 group stage matches</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:3px;">Group ${gid} · 3 group stage matches${nd?` · Manager: <span style="color:var(--text);">${nd.m}</span>`:''}</div>
       </div>
+    </div>`;
+  
+  // ─── Key stats grid
+  if(nd){
+    h+=`<div class="nat-grid">
+      <div class="nat-stat"><div class="nat-stat-lbl">FIFA rank</div><div class="nat-stat-val"><span style="color:var(--gold);">#${nd.r}</span></div></div>
+      <div class="nat-stat"><div class="nat-stat-lbl">WC appearances</div><div class="nat-stat-val">${nd.a}</div></div>
+      <div class="nat-stat" style="grid-column:span 2;"><div class="nat-stat-lbl">Best ever finish</div><div class="nat-stat-val small">${nd.b}</div></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">${others.map(t=>`<span class="opponent-pill">${FLAGS[t]||'🏳'} ${t}</span>`).join('')}</div>
-  </div>
-  <div class="section-title">Group stage fixtures</div>`;
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.6;"><strong style="color:var(--text);">Last World Cup:</strong> ${nd.l}</div>`;
+  }
+  
+  h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">${others.map(t=>{const r=NATIONS[t]?` <span style="color:var(--text-dim);font-size:10px;">#${NATIONS[t].r}</span>`:'';return`<button class="team-link opponent-pill" data-nation="${t}">${FLAGS[t]||'🏳'} ${t}${r}</button>`;}).join('')}</div>
+  </div>`;
+  
+  // ─── Recent form (last 5 results)
+  if(nd&&nd.f&&nd.f.length){
+    h+=`<div class="section-title">Last 5 international matches</div><div class="form-list">`;
+    nd.f.forEach(g=>{
+      const [hs,as]=g.s.split('-').map(Number);
+      const isHome=g.ha==='H';
+      // Score is from nation's POV: hs=nation's goals, as=opp's goals
+      let result='d';
+      if(hs>as)result='w';else if(hs<as)result='l';
+      const rText=result==='w'?'W':result==='l'?'L':'D';
+      const dt=new Date(g.d+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+      h+=`<div class="form-row">
+        <div class="form-result ${result}">${rText}</div>
+        <div class="form-opp">${nation} vs ${g.o}<span class="ha">(${g.ha==='H'?'Home':g.ha==='A'?'Away':'Neutral'})</span></div>
+        <div class="form-score">${g.s}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><div class="form-date">${dt}</div><div class="form-comp">${g.c}</div></div>
+      </div>`;
+    });
+    h+=`</div>
+    <p class="note">Recent results from ${nation}'s perspective. <strong>This is placeholder data approximate to April 2026</strong> — for live form, enable the football-data.org API integration (see CONFIG at the top of the script). Manual updates can also be made by editing the <code style="background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:10px;">f:</code> array for each nation in the NATIONS object.</p>`;
+  }
+  
+  // ─── Squad
+  h+=`<div class="section-title" style="margin-top:24px;">Tournament squad</div>`;
+  if(nd&&nd.sq){
+    const sq=nd.sq;
+    if(sq.s==='TBA'){
+      h+=`<div class="fc" style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;"><i class="ti ti-clock" aria-hidden="true" style="font-size:20px;color:var(--text-dim);"></i><div><div style="font-size:13px;font-weight:500;">Squad to be announced</div><div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${nation} have not yet announced their final 26-player squad. FIFA's deadline is 2 June 2026.</div></div></div></div>`;
+    } else {
+      const statusLabel=sq.s==='CONF'?'Final squad confirmed':'Preliminary squad (will be cut to 26 by 2 June)';
+      const statusColor=sq.s==='CONF'?'var(--live)':'var(--warn)';
+      const total=(sq.gk||[]).length+(sq.df||[]).length+(sq.mf||[]).length+(sq.fw||[]).length;
+      h+=`<div class="fc" style="padding:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div style="display:flex;align-items:center;gap:8px;"><span style="background:${statusColor};color:var(--bg);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.5px;">${sq.s==='CONF'?'Confirmed':'Preliminary'}</span><span style="font-size:13px;color:var(--text-dim);">${total} players</span></div><div style="font-size:11px;color:var(--text-muted);">${statusLabel}</div></div>`;
+      const sections=[['Goalkeepers','gk'],['Defenders','df'],['Midfielders','mf'],['Forwards','fw']];
+      sections.forEach(([label,key])=>{
+        const players=sq[key]||[];
+        if(!players.length)return;
+        // Each player is now [name, club]
+        const rows = players.map(p => {
+          const name = Array.isArray(p) ? p[0] : p;
+          const club = Array.isArray(p) ? p[1] : '';
+          return `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;border-bottom:0.5px solid var(--border);gap:8px;"><span style="color:var(--text);font-size:13px;">${name}</span><span style="color:var(--text-dim);font-size:11px;font-style:italic;text-align:right;flex-shrink:0;">${club}</span></div>`;
+        }).join('');
+        h+=`<div style="margin-bottom:14px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">${label} (${players.length})</div>${rows}</div>`;
+      });
+      h+='</div>';
+    }
+  } else {
+    h+=`<div class="fc" style="padding:16px;"><div style="font-size:13px;color:var(--text-dim);">Squad data not available.</div></div>`;
+  }
+  
+  // ─── Group stage fixtures
+  h+=`<div class="section-title" style="margin-top:24px;">Group stage fixtures</div>`;
   nfx.forEach((f,i)=>{
+    const opp=f.h===nation?f.a:f.h;
+    const oRank=NATIONS[opp]?NATIONS[opp].r:null;
+    const canCal=f.t;
     h+=`<div class="fc hl">
       <div class="fc-header">
         <div class="fc-meta">
@@ -557,16 +715,29 @@ function renderJourney(){
           <span>${fd(f.dt)}</span>
           ${tStr(f)}
         </div>
-        ${chBadge(f.ch)}
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          ${chBadge(f.ch)}
+          ${canCal?`<button class="cal-btn" data-fix-id="${f.id}" title="Add to calendar" aria-label="Add to calendar"><i class="ti ti-calendar-plus" aria-hidden="true" style="font-size:13px;"></i></button>`:''}
+        </div>
       </div>
       <div class="match-row">
-        <div class="team h"><div class="flag">${FLAGS[f.h]||'🏳'}</div><div class="team-name${f.h===nation?' bold':''}">${f.h}</div></div>
+        <div class="team h">
+          <div class="flag">${FLAGS[f.h]||'🏳'}</div>
+          <button class="team-link team-name${f.h===nation?' bold':''}" data-nation="${f.h}">${f.h}</button>
+          ${NATIONS[f.h]?`<div class="fifa-rank">FIFA <span class="num">#${NATIONS[f.h].r}</span></div>`:''}
+        </div>
         <div class="vs">vs</div>
-        <div class="team a"><div class="flag">${FLAGS[f.a]||'🏳'}</div><div class="team-name${f.a===nation?' bold':''}">${f.a}</div></div>
+        <div class="team a">
+          <div class="flag">${FLAGS[f.a]||'🏳'}</div>
+          <button class="team-link team-name${f.a===nation?' bold':''}" data-nation="${f.a}">${f.a}</button>
+          ${NATIONS[f.a]?`<div class="fifa-rank">FIFA <span class="num">#${NATIONS[f.a].r}</span></div>`:''}
+        </div>
       </div>
       <div class="venue"><i class="ti ti-map-pin" aria-hidden="true"></i> ${f.v}</div>
     </div>`;
   });
+  
+  // ─── Potential route
   const stages=[{s:'Round of 32',d:'28 Jun – 3 Jul',info:'vs runner-up or best 3rd-placed team'},{s:'Round of 16',d:'4–7 Jul',info:'All matches in USA from here'},{s:'Quarter-final',d:'9–11 Jul',info:''},{s:'Semi-final',d:'14–15 Jul',info:'Likely on BBC One'},{s:'The final',d:'19 Jul',info:'MetLife Stadium · BBC & ITV'}];
   h+=`<div class="section-title" style="margin-top:24px;">If ${nation} qualify — potential route</div>
   <div class="fc" style="padding:0;overflow:hidden;">`;
@@ -678,6 +849,58 @@ function startPolling(){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// CALENDAR (.ics) DOWNLOAD + NATION NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+function pad2(n){return String(n).padStart(2,'0');}
+
+function buildICS(f){
+  // BST = UTC+1, so subtract 1 hour from BST to get UTC
+  const [hh,mm]=(f.t||'20:00').split(':').map(Number);
+  const [yr,mo,dy]=f.dt.split('-').map(Number);
+  // Create a Date in BST then convert to UTC for the .ics file
+  // BST is UTC+1, so the UTC time is BST time - 1 hour
+  const bstDate=new Date(Date.UTC(yr,mo-1,dy,hh-1,mm,0));
+  const endDate=new Date(bstDate.getTime()+2*60*60*1000); // 2-hour event
+  const fmtUTC=d=>`${d.getUTCFullYear()}${pad2(d.getUTCMonth()+1)}${pad2(d.getUTCDate())}T${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}00Z`;
+  const stamp=fmtUTC(new Date());
+  const desc=`Group ${f.g} · Matchday ${f.md} · World Cup 2026\\nLive on ${f.ch}${f.note?'\\n'+f.note:''}`;
+  // Escape commas and semicolons in venue/summary per RFC 5545
+  const esc=s=>s.replace(/([,;\\])/g,'\\$1');
+  return['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//WC2026 Dashboard//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',`UID:wc2026-fix-${f.id}@dashboard`,`DTSTAMP:${stamp}`,`DTSTART:${fmtUTC(bstDate)}`,`DTEND:${fmtUTC(endDate)}`,`SUMMARY:${esc(f.h)} vs ${esc(f.a)} - World Cup 2026`,`DESCRIPTION:${esc(desc)}`,`LOCATION:${esc(f.v)}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+
+function downloadFixtureICS(f){
+  if(!f.t){alert('Cannot create calendar event — kick-off time not yet confirmed for this match.');return;}
+  const ics=buildICS(f);
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const safe=s=>s.replace(/[^a-z0-9]/gi,'-');
+  a.href=url;
+  a.download=`wc2026-${safe(f.h)}-vs-${safe(f.a)}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),100);
+}
+
+function navigateToNation(teamName){
+  nation=teamName;
+  const sel=document.getElementById('ns');
+  if(sel)sel.value=teamName;
+  const jb=document.getElementById('jbtn'),jl=document.getElementById('jlbl');
+  if(jb&&jl){jb.style.display='';jl.textContent=`${FLAGS[teamName]||''} ${teamName}`;}
+  // Switch to journey tab
+  ['fixtures','groups','bracket','venues','journey'].forEach(x=>{
+    const t=document.getElementById('tab-'+x);
+    if(t)t.style.display=x==='journey'?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab==='journey'));
+  renderJourney();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
@@ -722,6 +945,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(e.target.matches('[data-grp]')){document.querySelectorAll('[data-grp]').forEach(x=>x.classList.remove('on'));e.target.classList.add('on');aGrp=e.target.dataset.grp;renderFix();}
     if(e.target.matches('[data-ch]')){document.querySelectorAll('[data-ch]').forEach(x=>x.classList.remove('on'));e.target.classList.add('on');aCh=e.target.dataset.ch;renderFix();}
     if(e.target.matches('[data-when]')){document.querySelectorAll('[data-when]').forEach(x=>x.classList.remove('on'));e.target.classList.add('on');aWhen=e.target.dataset.when;renderFix();}
+    // Clickable team name → switch to nation page
+    const teamBtn=e.target.closest('[data-nation]');
+    if(teamBtn){
+      const teamName=teamBtn.dataset.nation;
+      if(teamName&&FLAGS[teamName]){navigateToNation(teamName);}
+    }
+    // Calendar download button
+    const calBtn=e.target.closest('[data-fix-id]');
+    if(calBtn){
+      const fixId=parseInt(calBtn.dataset.fixId);
+      const fix=FX.find(f=>f.id===fixId);
+      if(fix)downloadFixtureICS(fix);
+    }
   });
   
   // Nation selector
